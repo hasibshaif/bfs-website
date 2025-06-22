@@ -205,7 +205,7 @@ export const AnimatedHero: React.FC = () => {
       {/* MOBILE HAMBURGER */}
       {showNav && (
         <button
-          className="md:hidden absolute top-4 right-4 z-30 p-2 bg-black/50 rounded-full"
+          className="md:hidden fixed top-4 right-4 z-30 p-2 bg-black/50 rounded-full"
           onClick={() => setMenuOpen((o) => !o)}
         >
           {menuOpen ? <X className="w-6 h-6 text-white" /> : <Menu className="w-6 h-6 text-white" />}
