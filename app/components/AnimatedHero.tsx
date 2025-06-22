@@ -269,20 +269,22 @@ export const AnimatedHero: React.FC = () => {
       <MovingLines numLines={2} strokeWidthRange={[2, 4]} className="z-10 opacity-60" />
 
       {/* REPLAY BUTTON */}
-      <div className="fixed bottom-6 z-30 group md:right-6 md:left-auto left-1/2 md:translate-x-0 -translate-x-1/2 flex items-center gap-2">
-        <span className="hidden md:block whitespace-nowrap bg-black/80 text-white text-xs rounded px-2 py-1 pointer-events-none transition ease-out duration-200 opacity-0 translate-x-2 group-hover:opacity-100 group-hover:translate-x-0">
-          Replay Animation
-        </span>
-        <button
-          onClick={replayAnimation}
-          className="p-3 bg-black/50 hover:bg-black/70 rounded-full transition-all duration-200 relative"
-        >
-          <RotateCcw className="w-5 h-5 text-white group-hover:scale-110 transition-transform duration-200" />
-          <span className="absolute bottom-full mb-2 left-1/2 -translate-x-1/2 md:hidden whitespace-nowrap bg-black/80 text-white text-xs rounded px-2 py-1 pointer-events-none transition ease-out duration-200 opacity-0 -translate-y-2 group-hover:opacity-100 group-hover:-translate-y-0">
+      {showNav && (
+        <div className="fixed bottom-6 z-30 group md:right-6 md:left-auto left-1/2 md:translate-x-0 -translate-x-1/2 flex items-center gap-2">
+          <span className="hidden md:block whitespace-nowrap bg-black/80 text-white text-xs rounded px-2 py-1 pointer-events-none transition ease-out duration-200 opacity-0 translate-x-2 group-hover:opacity-100 group-hover:translate-x-0">
             Replay Animation
           </span>
-        </button>
-      </div>
+          <button
+            onClick={replayAnimation}
+            className="p-3 bg-black/50 hover:bg-black/70 rounded-full transition-all duration-200 relative"
+          >
+            <RotateCcw className="w-5 h-5 text-white group-hover:scale-110 transition-transform duration-200" />
+            <span className="absolute bottom-full mb-2 left-1/2 -translate-x-1/2 md:hidden whitespace-nowrap bg-black/80 text-white text-xs rounded px-2 py-1 pointer-events-none transition ease-out duration-200 opacity-0 -translate-y-2 group-hover:opacity-100 group-hover:-translate-y-0">
+              Replay Animation
+            </span>
+          </button>
+        </div>
+      )}
     </div>
   );
 };
