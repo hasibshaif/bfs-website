@@ -234,7 +234,7 @@ export const AnimatedHero: React.FC = () => {
 
       {/* HERO line */}
       <motion.div
-        className="z-10 flex-row justify-center items-center text-center font-light tracking-tighter text-4xl sm:text-6xl md:text-8xl lg:text-9xl"
+        className="z-10 flex-row justify-center items-center text-center font-light tracking-tighter text-4xl sm:text-4xl md:text-6xl lg:text-9xl"
         style={{
           fontFamily: "var(--font-azeret-mono)",
           background: "linear-gradient(to right, #FFFFFF 0%, #b3c5fc 100%)",
@@ -249,7 +249,7 @@ export const AnimatedHero: React.FC = () => {
       {/* SUBTEXT */}
       {displaySub && (
         <motion.p
-          className="z-10 font-extralight text-white mt-8 text-2xl sm:text-xl text-center leading-relaxed tracking-tighter"
+          className="z-10 font-extralight text-white mt-8 text-lg sm:text-lg md:text-3xl text-center leading-relaxed tracking-tighter"
           style={{ fontFamily: "var(--font-azeret-mono)" }}
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
