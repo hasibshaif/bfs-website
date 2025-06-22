@@ -132,9 +132,9 @@ export const AnimatedHero: React.FC = () => {
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
           >
-            <NavBar items={topItems} direction="vertical" tooltipPosition="right" className="bg-black/30" />
+            <NavBar items={topItems} direction="vertical" tooltipPosition="right" className="bg-black/30" showLabels={true} />
             <div className="h-1 bg-white/30 my-4 w-full max-w-xs" />
-            <NavBar items={socialItems} direction="vertical" tooltipPosition="right" className="bg-black/30" />
+            <NavBar items={socialItems} direction="vertical" tooltipPosition="left" className="bg-black/30" />
           </motion.div>
         )}
       </AnimatePresence>
@@ -174,7 +174,7 @@ export const AnimatedHero: React.FC = () => {
       </div>
 
       {/* FRONT LINES */}
-      <MovingLines numLines={2} strokeWidthRange={[1, 3]} className="z-10 opacity-60" />
+      <MovingLines numLines={2} strokeWidthRange={[2, 4]} className="z-10 opacity-60" />
     </div>
   );
 };
