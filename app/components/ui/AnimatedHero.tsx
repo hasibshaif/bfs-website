@@ -131,10 +131,13 @@ export const AnimatedHero: React.FC = () => {
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
+            onClick={() => setMenuOpen(false)}
           >
-            <NavBar items={topItems} direction="vertical" tooltipPosition="right" className="bg-black/30" showLabels={true} />
-            <div className="h-1 bg-white/30 my-4 w-full max-w-xs" />
-            <NavBar items={socialItems} direction="vertical" tooltipPosition="left" className="bg-black/30" />
+            <div onClick={(e) => e.stopPropagation()} className="flex gap-8 items-start">
+              <NavBar items={topItems} direction="vertical" tooltipPosition="right" className="bg-black/30" showLabels={true} />
+              <div className="h-full w-px bg-white/30" />
+              <NavBar items={socialItems} direction="vertical" tooltipPosition="left" className="bg-black/30" />
+            </div>
           </motion.div>
         )}
       </AnimatePresence>
