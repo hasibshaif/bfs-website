@@ -65,7 +65,7 @@ const Line: React.FC<{
       initial={{ opacity: 0 }}
       animate={{
         d: [from, to, from],
-        opacity: [0, rand(0.5, 0.9), 0],
+        opacity: [0, rand(0.4, 0.9), 0],
       }}
       transition={{
         duration: rand(20, 60),
