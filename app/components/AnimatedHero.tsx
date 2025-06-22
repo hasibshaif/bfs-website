@@ -45,32 +45,19 @@ export const AnimatedHero: React.FC = () => {
   const [showNav, setShowNav] = useState(false);
   const [menuOpen, setMenuOpen] = useState(false);
 
-  const replayAnimation = () => {
-    // Reset all states
-    setDisplayText("");
-    setDisplaySub("");
-    setShowMainCursor(true);
-    setShowNav(false);
-    setMenuOpen(false);
-    
-    // Clear session storage to force animation replay
-    sessionStorage.removeItem('bfs-animation-completed');
-    
-    // Trigger the animation again
+  const startAnimation = () => {
     const timers: NodeJS.Timeout[] = [];
 
-    // 1) Type "bfs"
+    // 1) type bfs
     initial.split("").forEach((ch, i) =>
       timers.push(
         setTimeout(() => setDisplayText((t) => t + ch), i * 100)
       )
     );
-
-    // 2) Hide main cursor before deletion
     const deleteStart = initial.length * 150 + 200;
     timers.push(setTimeout(() => setShowMainCursor(false), deleteStart));
 
-    // 3) Delete "bfs"
+    // 3) delete bfs
     initial
       .split("")
       .reverse()
@@ -108,7 +95,7 @@ export const AnimatedHero: React.FC = () => {
       )
     );
 
-    // 6) Show nav once subText finishes and mark animation as completed
+    // 6) show nav and mark animation as complete
     const subEnd = subStart + subText.length * 20;
     timers.push(setTimeout(() => {
       setShowNav(true);
@@ -118,12 +105,24 @@ export const AnimatedHero: React.FC = () => {
     return () => timers.forEach(clearTimeout);
   };
 
+  const replayAnimation = () => {
+    // reset states
+    setDisplayText("");
+    setDisplaySub("");
+    setShowMainCursor(true);
+    setShowNav(false);
+    setMenuOpen(false);
+    
+    // clear session storage to force replay
+    sessionStorage.removeItem('bfs-animation-completed');
+    return startAnimation();
+  };
+
   useEffect(() => {
-    // Check if animation has already been completed in this session
+    // Use session storage to check if animation has already been completed in this session
     const animationCompleted = sessionStorage.getItem('bfs-animation-completed');
     
     if (animationCompleted === 'true') {
-      // Skip animation and show everything immediately
       setDisplayText(fullText);
       setDisplaySub(subText);
       setShowMainCursor(false);
@@ -131,78 +130,20 @@ export const AnimatedHero: React.FC = () => {
       return;
     }
 
-    const timers: NodeJS.Timeout[] = [];
-
-    // 1) Type "bfs"
-    initial.split("").forEach((ch, i) =>
-      timers.push(
-        setTimeout(() => setDisplayText((t) => t + ch), i * 100)
-      )
-    );
-
-    // 2) Hide main cursor before deletion
-    const deleteStart = initial.length * 150 + 200;
-    timers.push(setTimeout(() => setShowMainCursor(false), deleteStart));
-
-    // 3) Delete "bfs"
-    initial
-      .split("")
-      .reverse()
-      .forEach((_, i) =>
-        timers.push(
-          setTimeout(
-            () => setDisplayText((t) => t.slice(0, -1)),
-            deleteStart + i * 100
-          )
-        )
-      );
-
-    // 4) Type fullText
-    const fullStart = deleteStart + initial.length * 30 + 200;
-    timers.push(setTimeout(() => setShowMainCursor(true), fullStart));
-    fullText.split("").forEach((ch, i) =>
-      timers.push(
-        setTimeout(
-          () => setDisplayText((t) => t + ch),
-          fullStart + i * 70
-        )
-      )
-    );
-    const fullEnd = fullStart + fullText.length * 50;
-    timers.push(setTimeout(() => setShowMainCursor(false), fullEnd));
-
-    // 5) Type subText
-    const subStart = fullEnd + 300;
-    subText.split("").forEach((ch, i) =>
-      timers.push(
-        setTimeout(
-          () => setDisplaySub((t) => t + ch),
-          subStart + i * 20
-        )
-      )
-    );
-
-    // 6) Show nav once subText finishes and mark animation as completed
-    const subEnd = subStart + subText.length * 20;
-    timers.push(setTimeout(() => {
-      setShowNav(true);
-      sessionStorage.setItem('bfs-animation-completed', 'true');
-    }, subEnd + 200));
-
-    return () => timers.forEach(clearTimeout);
+    return startAnimation();
   }, []);
 
   return (
     <div className="relative bg-gradient-to-br from-[#040712] to-[#000000] w-full flex flex-col items-center justify-center min-h-screen overflow-hidden px-4 sm:px-6 md:px-8">
-      {/* BACK LINES */}
+      {/* background lines */}
       <MovingLines numLines={5} strokeWidthRange={[2, 9]} className="z-0 opacity-70" />
 
-      {/* DESKTOP TOP NAV */}
+      {/* desktop top nav */}
       <div className="hidden md:absolute md:top-4 md:inset-x-0 md:flex md:justify-center md:z-20">
         {showNav && <NavBar items={topItems} />}
       </div>
 
-      {/* MOBILE HAMBURGER */}
+      {/* mobile hamburger */}
       {showNav && (
         <button
           className="md:hidden fixed top-4 right-4 z-30 p-2 bg-black/50 rounded-full"
@@ -212,7 +153,7 @@ export const AnimatedHero: React.FC = () => {
         </button>
       )}
 
-      {/* MOBILE DRAWER */}
+      {/* mobile drawer */}
       <AnimatePresence>
         {menuOpen && (
           <motion.div
@@ -232,7 +173,7 @@ export const AnimatedHero: React.FC = () => {
       </AnimatePresence>
 
 
-      {/* HERO line */}
+      {/* main text */}
       <motion.div
         className="z-10 flex-row justify-center items-center text-center font-light tracking-tighter text-4xl sm:text-4xl md:text-6xl lg:text-9xl"
         style={{
@@ -246,7 +187,7 @@ export const AnimatedHero: React.FC = () => {
         {showMainCursor && <MainCursor />}
       </motion.div>
 
-      {/* SUBTEXT */}
+      {/* subtext */}
       {displaySub && (
         <motion.p
           className="z-10 font-extralight text-white mt-8 text-lg sm:text-lg md:text-3xl text-center leading-relaxed tracking-tighter"
@@ -260,15 +201,15 @@ export const AnimatedHero: React.FC = () => {
         </motion.p>
       )}
 
-      {/* DESKTOP BOTTOM NAV */}
+      {/* desktop bottom nav */}
       <div className="hidden md:absolute md:bottom-6 md:inset-x-0 md:flex md:justify-center md:z-20">
         {showNav && <NavBar items={socialItems} tooltipPosition="top" />}
       </div>
 
-      {/* FRONT LINES */}
+      {/* foreground lines */}
       <MovingLines numLines={2} strokeWidthRange={[2, 4]} className="z-10 opacity-60" />
 
-      {/* REPLAY BUTTON */}
+      {/* replay button */}
       {showNav && (
         <div className="fixed bottom-6 z-30 group md:right-6 md:left-auto left-1/2 md:translate-x-0 -translate-x-1/2 flex items-center gap-2">
           <span className="hidden md:block whitespace-nowrap bg-black/80 text-white text-xs rounded px-2 py-1 pointer-events-none transition ease-out duration-200 opacity-0 translate-x-2 group-hover:opacity-100 group-hover:translate-x-0">
