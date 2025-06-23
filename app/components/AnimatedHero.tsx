@@ -1,6 +1,6 @@
 // components/animated-hero.tsx
 "use client";
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { AnimatePresence, motion } from "motion/react";
 import { MovingLines } from "./MovingLines";
 import { NavBar, NavItem } from "./NavBar";
@@ -44,59 +44,97 @@ export const AnimatedHero: React.FC = () => {
   const [showMainCursor, setShowMainCursor] = useState(true);
   const [showNav, setShowNav] = useState(false);
   const [menuOpen, setMenuOpen] = useState(false);
+  
+  // Audio ref for keyboard sound
+  const audioRef = useRef<HTMLAudioElement | null>(null);
+
+  // Initialize audio
+  useEffect(() => {
+    audioRef.current = new Audio('/audio/keyboard-click1.mp3');
+    audioRef.current.volume = 0.3; // Set volume to 30%
+    
+    return () => {
+      if (audioRef.current) {
+        audioRef.current.pause();
+        audioRef.current = null;
+      }
+    };
+  }, []);
+
+  // Function to play keyboard sound
+  const playKeyboardSound = () => {
+    if (audioRef.current) {
+      audioRef.current.currentTime = 0; // Reset to beginning
+      audioRef.current.play().catch(err => {
+        // Silently handle autoplay restrictions
+        console.log('Audio play prevented:', err);
+      });
+    }
+  };
 
   const startAnimation = () => {
     const timers: NodeJS.Timeout[] = [];
 
-    // 1) type bfs
-    initial.split("").forEach((ch, i) =>
+    // 1) type bfs - ensure each character gets its own click
+    initial.split("").forEach((ch, i) => {
       timers.push(
-        setTimeout(() => setDisplayText((t) => t + ch), i * 100)
-      )
-    );
+        setTimeout(() => {
+          setDisplayText((t) => t + ch);
+          playKeyboardSound();
+        }, i * 150) // Increased delay to ensure audio plays for each character
+      );
+    });
     const deleteStart = initial.length * 150 + 200;
     timers.push(setTimeout(() => setShowMainCursor(false), deleteStart));
 
-    // 3) delete bfs
+    // 3) delete bfs - ensure each deletion gets its own click
     initial
       .split("")
       .reverse()
       .forEach((_, i) =>
         timers.push(
           setTimeout(
-            () => setDisplayText((t) => t.slice(0, -1)),
-            deleteStart + i * 100
+            () => {
+              setDisplayText((t) => t.slice(0, -1));
+              playKeyboardSound();
+            },
+            deleteStart + i * 150 // Increased delay to ensure audio plays for each deletion
           )
         )
       );
 
-    // 4) Type fullText
-    const fullStart = deleteStart + initial.length * 30 + 200;
+    // 4) Type fullText - slowed down to match audio better
+    const fullStart = deleteStart + initial.length * 150 + 200;
     timers.push(setTimeout(() => setShowMainCursor(true), fullStart));
     fullText.split("").forEach((ch, i) =>
       timers.push(
         setTimeout(
-          () => setDisplayText((t) => t + ch),
-          fullStart + i * 70
+          () => {
+            setDisplayText((t) => t + ch);
+            playKeyboardSound();
+          },
+          fullStart + i * 120 // Slowed down from 70ms to 120ms
         )
       )
     );
-    const fullEnd = fullStart + fullText.length * 50;
+    const fullEnd = fullStart + fullText.length * 120;
     timers.push(setTimeout(() => setShowMainCursor(false), fullEnd));
 
-    // 5) Type subText
+    // 5) Type subText - faster typing without audio
     const subStart = fullEnd + 300;
     subText.split("").forEach((ch, i) =>
       timers.push(
         setTimeout(
-          () => setDisplaySub((t) => t + ch),
-          subStart + i * 20
+          () => {
+            setDisplaySub((t) => t + ch);
+          },
+          subStart + i * 25 // Faster typing at 25ms per character
         )
       )
     );
 
     // 6) show nav and mark animation as complete
-    const subEnd = subStart + subText.length * 20;
+    const subEnd = subStart + subText.length * 25;
     timers.push(setTimeout(() => {
       setShowNav(true);
       sessionStorage.setItem('bfs-animation-completed', 'true');
@@ -136,7 +174,7 @@ export const AnimatedHero: React.FC = () => {
   return (
     <div className="relative bg-gradient-to-br from-[#040712] to-[#000000] w-full flex flex-col items-center justify-center min-h-screen overflow-hidden px-4 sm:px-6 md:px-8">
       {/* background lines */}
-      <MovingLines numLines={5} strokeWidthRange={[2, 9]} className="z-0 opacity-70" />
+      <MovingLines numLines={5} strokeWidthRange={[2, 12]} className="z-0 opacity-70" />
 
       {/* desktop top nav */}
       <div className="hidden md:absolute md:top-4 md:inset-x-0 md:flex md:justify-center md:z-20">
