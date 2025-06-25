@@ -19,7 +19,7 @@ const rand = (min: number, max: number) =>
 const snap = (val: number, grid: number) =>
   Math.round(val / grid) * grid;
 
-const generatePath = (w: number, h: number, jitter = 300, grid = 8) => {
+const generatePath = (w: number, h: number, jitter = 300, grid = 2) => {
   const rndXY = () =>
     snap(Math.random() * (w + jitter * 2) - jitter, grid);
   const startY = snap(Math.random() * (h + jitter * 2) - jitter, grid);
@@ -41,16 +41,16 @@ const Line: React.FC<{
   width: number;
   height: number;
   strokeWidthRange: [number, number];
-}> = ({ width, height, strokeWidthRange: [minW, maxW] }) => {
+  lineIndex: number;
+}> = ({ width, height, strokeWidthRange: [minW, maxW], lineIndex }) => {
   const [from, setFrom] = useState("");
   const [to, setTo]     = useState("");
-  const [stroke, setStroke] = useState(COLORS[0]);
+  const [gradientId] = useState(`gradient-${lineIndex}`);
 
   useEffect(() => {
     if (!width || !height) return;
     setFrom(generatePath(width, height));
     setTo(generatePath(width, height));
-    setStroke(COLORS[Math.floor(Math.random() * COLORS.length)]);
   }, [width, height]);
 
   if (!from || !to) return null;
@@ -58,7 +58,7 @@ const Line: React.FC<{
   return (
     <motion.path
       d={from}
-      stroke={stroke}
+      stroke={`url(#${gradientId})`}
       strokeWidth={snap(rand(minW, maxW), 1)}
       fill="none"
       vectorEffect="non-scaling-stroke"
@@ -73,6 +73,59 @@ const Line: React.FC<{
         ease: "linear",
       }}
     />
+  );
+};
+
+const GradientDefinitions: React.FC<{ numLines: number }> = ({ numLines }) => {
+  return (
+    <defs>
+      {Array.from({ length: numLines }).map((_, i) => {
+        const baseColor1 = COLORS[Math.floor(Math.random() * COLORS.length)];
+        const baseColor2 = COLORS[Math.floor(Math.random() * COLORS.length)];
+        const baseColor3 = COLORS[Math.floor(Math.random() * COLORS.length)];
+        
+        return (
+          <linearGradient key={i} id={`gradient-${i}`} gradientUnits="userSpaceOnUse">
+            <motion.stop
+              offset="0%"
+              stopColor={baseColor1}
+              animate={{
+                stopColor: [baseColor1, baseColor2, baseColor3, baseColor1],
+              }}
+              transition={{
+                duration: rand(8, 15),
+                repeat: Infinity,
+                ease: "easeInOut",
+              }}
+            />
+            <motion.stop
+              offset="50%"
+              stopColor={baseColor2}
+              animate={{
+                stopColor: [baseColor2, baseColor3, baseColor1, baseColor2],
+              }}
+              transition={{
+                duration: rand(8, 15),
+                repeat: Infinity,
+                ease: "easeInOut",
+              }}
+            />
+            <motion.stop
+              offset="100%"
+              stopColor={baseColor3}
+              animate={{
+                stopColor: [baseColor3, baseColor1, baseColor2, baseColor3],
+              }}
+              transition={{
+                duration: rand(8, 15),
+                repeat: Infinity,
+                ease: "easeInOut",
+              }}
+            />
+          </linearGradient>
+        );
+      })}
+    </defs>
   );
 };
 
@@ -100,15 +153,14 @@ export const MovingLines: React.FC<MovingLinesProps> = ({
     <div
       ref={ref}
       className={`absolute inset-0 w-full h-full overflow-hidden pointer-events-none ${className}`}
-      style={{ imageRendering: "pixelated" }}
     >
       <svg
         width="100%"
         height="100%"
         className="absolute inset-0"
-        shapeRendering="crispEdges"
-        style={{ imageRendering: "pixelated" }}
+        shapeRendering="auto"
       >
+        <GradientDefinitions numLines={numLines} />
         {dims.width > 0 &&
           Array.from({ length: numLines }).map((_, i) => (
             <Line
@@ -116,6 +168,7 @@ export const MovingLines: React.FC<MovingLinesProps> = ({
               width={dims.width}
               height={dims.height}
               strokeWidthRange={strokeWidthRange}
+              lineIndex={i}
             />
           ))}
       </svg>

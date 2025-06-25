@@ -45,13 +45,11 @@ export const AnimatedHero: React.FC = () => {
   const [showNav, setShowNav] = useState(false);
   const [menuOpen, setMenuOpen] = useState(false);
   
-  // Audio ref for keyboard sound
+  // Audio for keyboard sound
   const audioRef = useRef<HTMLAudioElement | null>(null);
-
-  // Initialize audio
   useEffect(() => {
     audioRef.current = new Audio('/audio/keyboard-click1.mp3');
-    audioRef.current.volume = 0.3; // Set volume to 30%
+    audioRef.current.volume = 0.4;
     
     return () => {
       if (audioRef.current) {
@@ -60,13 +58,10 @@ export const AnimatedHero: React.FC = () => {
       }
     };
   }, []);
-
-  // Function to play keyboard sound
   const playKeyboardSound = () => {
     if (audioRef.current) {
-      audioRef.current.currentTime = 0; // Reset to beginning
+      audioRef.current.currentTime = 0;
       audioRef.current.play().catch(err => {
-        // Silently handle autoplay restrictions
         console.log('Audio play prevented:', err);
       });
     }
@@ -75,19 +70,19 @@ export const AnimatedHero: React.FC = () => {
   const startAnimation = () => {
     const timers: NodeJS.Timeout[] = [];
 
-    // 1) type bfs - ensure each character gets its own click
+    // 1) type bfs
     initial.split("").forEach((ch, i) => {
       timers.push(
         setTimeout(() => {
           setDisplayText((t) => t + ch);
           playKeyboardSound();
-        }, i * 150) // Increased delay to ensure audio plays for each character
+        }, i * 120)
       );
     });
-    const deleteStart = initial.length * 150 + 200;
+    const deleteStart = initial.length * 120 + 180;
     timers.push(setTimeout(() => setShowMainCursor(false), deleteStart));
 
-    // 3) delete bfs - ensure each deletion gets its own click
+    // 3) delete bfs
     initial
       .split("")
       .reverse()
@@ -98,13 +93,13 @@ export const AnimatedHero: React.FC = () => {
               setDisplayText((t) => t.slice(0, -1));
               playKeyboardSound();
             },
-            deleteStart + i * 150 // Increased delay to ensure audio plays for each deletion
+            deleteStart + i * 120
           )
         )
       );
 
-    // 4) Type fullText - slowed down to match audio better
-    const fullStart = deleteStart + initial.length * 150 + 200;
+    // 4) Type fullText
+    const fullStart = deleteStart + initial.length * 120 + 180;
     timers.push(setTimeout(() => setShowMainCursor(true), fullStart));
     fullText.split("").forEach((ch, i) =>
       timers.push(
@@ -113,53 +108,51 @@ export const AnimatedHero: React.FC = () => {
             setDisplayText((t) => t + ch);
             playKeyboardSound();
           },
-          fullStart + i * 120 // Slowed down from 70ms to 120ms
+          fullStart + i * 100
         )
       )
     );
-    const fullEnd = fullStart + fullText.length * 120;
+    const fullEnd = fullStart + fullText.length * 100;
     timers.push(setTimeout(() => setShowMainCursor(false), fullEnd));
 
-    // 5) Type subText - faster typing without audio
-    const subStart = fullEnd + 300;
+    // 5) Type subText
+    const subStart = fullEnd + 200;
     subText.split("").forEach((ch, i) =>
       timers.push(
         setTimeout(
           () => {
             setDisplaySub((t) => t + ch);
           },
-          subStart + i * 25 // Faster typing at 25ms per character
+          subStart + i * 15
         )
       )
     );
 
-    // 6) show nav and mark animation as complete
-    const subEnd = subStart + subText.length * 25;
+    // 6) show nav
+    const subEnd = subStart + subText.length * 15;
     timers.push(setTimeout(() => {
       setShowNav(true);
       sessionStorage.setItem('bfs-animation-completed', 'true');
-    }, subEnd + 200));
+    }, subEnd + 150));
 
     return () => timers.forEach(clearTimeout);
   };
 
   const replayAnimation = () => {
-    // reset states
     setDisplayText("");
     setDisplaySub("");
     setShowMainCursor(true);
     setShowNav(false);
     setMenuOpen(false);
     
-    // clear session storage to force replay
+    // clear session storage for replay
     sessionStorage.removeItem('bfs-animation-completed');
     return startAnimation();
   };
-
+  
+  // session storage to check if animation alr been completed in session
   useEffect(() => {
-    // Use session storage to check if animation has already been completed in this session
     const animationCompleted = sessionStorage.getItem('bfs-animation-completed');
-    
     if (animationCompleted === 'true') {
       setDisplayText(fullText);
       setDisplaySub(subText);
@@ -167,7 +160,6 @@ export const AnimatedHero: React.FC = () => {
       setShowNav(true);
       return;
     }
-
     return startAnimation();
   }, []);
 
