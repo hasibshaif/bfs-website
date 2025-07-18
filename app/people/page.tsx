@@ -3,6 +3,7 @@ import React from "react";
 import { motion } from "motion/react";
 import { FaLinkedin, FaGlobe } from "react-icons/fa";
 import { IconType } from "react-icons";
+import Image from "next/image";
 
 interface MemberLink {
   type: string;
@@ -151,11 +152,12 @@ export default function People() {
                 >
                   {member.name}
                 </h3>
-                <div className="w-32 h-32 mx-auto mb-4 rounded-full overflow-hidden bg-white/10 border border-white/20 shadow-lg">
-                  <img
+                <div className="w-32 h-32 mx-auto mb-4 rounded-full overflow-hidden bg-white/10 border border-white/20 shadow-lg relative">
+                  <Image
                     src={member.image}
                     alt={member.name}
-                    className="w-full h-full object-cover object-center"
+                    fill
+                    className="object-cover object-center"
                     style={{
                       imageRendering: 'auto'
                     }}
@@ -243,11 +245,12 @@ export default function People() {
                 >
                   {member.name}
                 </h3>
-                <div className="w-28 h-28 mx-auto mb-4 rounded-full overflow-hidden bg-white/10 border border-white/20 shadow-lg">
-                  <img
+                <div className="w-28 h-28 mx-auto mb-4 rounded-full overflow-hidden bg-white/10 border border-white/20 shadow-lg relative">
+                  <Image
                     src={member.image}
                     alt={member.name}
-                    className="w-full h-full object-cover object-center"
+                    fill
+                    className="object-cover object-center"
                     style={{
                       imageRendering: 'auto'
                     }}

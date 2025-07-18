@@ -137,6 +137,7 @@ export const AnimatedHero: React.FC = () => {
       return;
     }
     return startAnimation();
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   return (
