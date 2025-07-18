@@ -1,8 +1,8 @@
 import localFont from 'next/font/local'
 
-export const figtree = localFont({
-  src: '../public/fonts/Figtree.ttf',
-  variable: '--font-figtree',
+export const ubuntu = localFont({
+  src: '../public/fonts/Ubuntu.ttf',
+  variable: '--font-ubuntu',
   display: 'swap',
 })
 

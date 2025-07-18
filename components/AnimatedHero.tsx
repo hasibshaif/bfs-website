@@ -1,39 +1,11 @@
 // components/animated-hero.tsx
 "use client";
 import React, { useState, useEffect, useRef } from "react";
-import { AnimatePresence, motion } from "motion/react";
+import { motion } from "motion/react";
 import { MovingLines } from "./MovingLines";
-import { NavBar, NavItem } from "./NavBar";
-import {
-  FaInfoCircle,
-  FaUsers,
-  FaInstagram,
-  FaLinkedinIn,
-  FaDiscord,
-  FaProjectDiagram,
-  FaCalendar,
-  FaImage,
-} from "react-icons/fa"
-import { SiLinktree } from "react-icons/si";
-import { Menu, X } from "lucide-react";
 import { RotateCcw } from "lucide-react";
 
 export const AnimatedHero: React.FC = () => {
-  const topItems: NavItem[] = [
-    { label: "About",    href: "/about",    Icon: FaInfoCircle },
-    { label: "People",   href: "/people",   Icon: FaUsers },
-    { label: "Projects", href: "/projects", Icon: FaProjectDiagram },
-    { label: "Events",   href: "/events",   Icon: FaCalendar },
-    { label: "Gallery",  href: "/gallery",  Icon: FaImage },
-  ];
-
-  const socialItems: NavItem[] = [
-    { label: "Instagram", href: "https://www.instagram.com/baruchfullstack/", Icon: FaInstagram },
-    { label: "LinkedIn",  href: "https://www.linkedin.com/company/baruch-full-stack/",  Icon: FaLinkedinIn  },
-    { label: "Linktree",  href: "https://linktr.ee/baruchfullstack",  Icon: SiLinktree  },
-    { label: "Discord",  href: "https://discord.gg/WXxPUmgUTa",  Icon: FaDiscord  },
-  ];
-  
   const initial = "{bfs}";
   const fullText = "{baruch full stack}";
   const subText =
@@ -42,8 +14,7 @@ export const AnimatedHero: React.FC = () => {
   const [displayText, setDisplayText] = useState("");
   const [displaySub, setDisplaySub] = useState("");
   const [showMainCursor, setShowMainCursor] = useState(true);
-  const [showNav, setShowNav] = useState(false);
-  const [menuOpen, setMenuOpen] = useState(false);
+  const [animationComplete, setAnimationComplete] = useState(false);
   
   // Audio for keyboard sound
   const audioRef = useRef<HTMLAudioElement | null>(null);
@@ -128,11 +99,13 @@ export const AnimatedHero: React.FC = () => {
       )
     );
 
-    // 6) show nav
+    // 6) show nav (triggers global navigation)
     const subEnd = subStart + subText.length * 15;
     timers.push(setTimeout(() => {
-      setShowNav(true);
       sessionStorage.setItem('bfs-animation-completed', 'true');
+      setAnimationComplete(true);
+      // Dispatch a custom event to notify the global navigation
+      window.dispatchEvent(new CustomEvent('bfs-animation-completed'));
     }, subEnd + 150));
 
     return () => timers.forEach(clearTimeout);
@@ -142,11 +115,14 @@ export const AnimatedHero: React.FC = () => {
     setDisplayText("");
     setDisplaySub("");
     setShowMainCursor(true);
-    setShowNav(false);
-    setMenuOpen(false);
+    setAnimationComplete(false);
     
     // clear session storage for replay
     sessionStorage.removeItem('bfs-animation-completed');
+    
+    // Dispatch event to hide global navigation
+    window.dispatchEvent(new CustomEvent('bfs-animation-started'));
+    
     return startAnimation();
   };
   
@@ -157,51 +133,16 @@ export const AnimatedHero: React.FC = () => {
       setDisplayText(fullText);
       setDisplaySub(subText);
       setShowMainCursor(false);
-      setShowNav(true);
+      setAnimationComplete(true);
       return;
     }
     return startAnimation();
   }, []);
 
   return (
-    <div className="relative bg-gradient-to-br from-[#040712] to-[#000000] w-full flex flex-col items-center justify-center min-h-screen overflow-hidden px-4 sm:px-6 md:px-8">
+    <div className="relative bg-gradient-to-br from-[#010617] to-[#000000] w-full flex flex-col items-center justify-center min-h-screen overflow-hidden px-4 sm:px-6 md:px-8">
       {/* background lines */}
       <MovingLines numLines={5} strokeWidthRange={[2, 12]} className="z-0 opacity-70" />
-
-      {/* desktop top nav */}
-      <div className="hidden md:absolute md:top-4 md:inset-x-0 md:flex md:justify-center md:z-20">
-        {showNav && <NavBar items={topItems} />}
-      </div>
-
-      {/* mobile hamburger */}
-      {showNav && (
-        <button
-          className="md:hidden fixed top-4 right-4 z-30 p-2 bg-black/50 rounded-full"
-          onClick={() => setMenuOpen((o) => !o)}
-        >
-          {menuOpen ? <X className="w-6 h-6 text-white" /> : <Menu className="w-6 h-6 text-white" />}
-        </button>
-      )}
-
-      {/* mobile drawer */}
-      <AnimatePresence>
-        {menuOpen && (
-          <motion.div
-            className="fixed inset-0 bg-black/60 z-20 flex justify-center items-start pt-24 px-4"
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            onClick={() => setMenuOpen(false)}
-          >
-            <div onClick={(e) => e.stopPropagation()} className="flex gap-8 items-start">
-              <NavBar items={topItems} direction="vertical" tooltipPosition="right" className="bg-black/30" showLabels={true} />
-              <div className="h-full w-px bg-white/30" />
-              <NavBar items={socialItems} direction="vertical" tooltipPosition="left" className="bg-black/30" />
-            </div>
-          </motion.div>
-        )}
-      </AnimatePresence>
-
 
       {/* main text */}
       <motion.div
@@ -231,16 +172,11 @@ export const AnimatedHero: React.FC = () => {
         </motion.p>
       )}
 
-      {/* desktop bottom nav */}
-      <div className="hidden md:absolute md:bottom-6 md:inset-x-0 md:flex md:justify-center md:z-20">
-        {showNav && <NavBar items={socialItems} tooltipPosition="top" />}
-      </div>
-
       {/* foreground lines */}
       <MovingLines numLines={2} strokeWidthRange={[2, 4]} className="z-10 opacity-60" />
 
       {/* replay button */}
-      {showNav && (
+      {animationComplete && (
         <div className="fixed bottom-6 z-30 group md:right-6 md:left-auto left-1/2 md:translate-x-0 -translate-x-1/2 flex items-center gap-2">
           <span className="hidden md:block whitespace-nowrap bg-black/80 text-white text-xs rounded px-2 py-1 pointer-events-none transition ease-out duration-200 opacity-0 translate-x-2 group-hover:opacity-100 group-hover:translate-x-0">
             Replay Animation

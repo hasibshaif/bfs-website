@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
-import { figtree, azeretMono } from "./fonts";
+import { ubuntu, azeretMono } from "./fonts";
 import "./globals.css";
+import { GlobalNavigation } from "@/components/GlobalNavigation";
 
 export const metadata: Metadata = {
   title: "Baruch Full Stack",
@@ -15,8 +16,9 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body
-        className={`${figtree.variable} ${azeretMono.variable} antialiased`}
+        className={`${ubuntu.variable} ${azeretMono.variable} antialiased`}
       >
+        <GlobalNavigation />
         {children}
       </body>
     </html>
