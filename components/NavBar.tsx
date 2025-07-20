@@ -9,6 +9,7 @@ export interface NavItem {
   label: string;
   href: string;
   Icon: React.FC<React.SVGProps<SVGSVGElement>>;
+  isActive?: boolean;
 }
 
 const container: Variants = {
@@ -38,7 +39,8 @@ export const NavBar: React.FC<{
   tooltipPosition?: "top" | "bottom" | "right" | "left";
   className?: string;
   showLabels?: boolean;
-}> = ({ items, direction = "horizontal", tooltipPosition = "bottom", className, showLabels = false }) => {
+  onItemClick?: () => void;
+}> = ({ items, direction = "horizontal", tooltipPosition = "bottom", className, showLabels = false, onItemClick }) => {
   const [hoveredIcon, setHoveredIcon] = useState<string | null>(null);
   const isHorizontal = direction === "horizontal";
   const shouldShowLabels = showLabels && !isHorizontal;
@@ -81,28 +83,43 @@ export const NavBar: React.FC<{
       initial="hidden"
       animate="visible"
     >
-      {items.map(({ label, href, Icon }) => (
-        <motion.div
-          key={label}
-          variants={item}
-          className="relative group flex items-center"
-          onMouseEnter={() => setHoveredIcon(label)}
-          onMouseLeave={() => setHoveredIcon(null)}
-        >
-          <Link href={href} className={`p-2 block ${shouldShowLabels ? 'flex flex-col items-center gap-2' : ''}`}>
-            <Icon
-              className="w-6 h-6 hover:scale-110 transition-all duration-200"
-              style={{ color: hoveredIcon === label ? getHoverColor(label) : getBaseColor(label) }}
-            />
-            {shouldShowLabels && (
-              <span className="text-white text-xs font-medium text-center">{label}</span>
+      {items.map((navItem) => {
+        const { label, href, Icon, isActive } = navItem;
+        return (
+          <motion.div
+            key={label}
+            variants={item}
+            className="relative group flex items-center"
+            onMouseEnter={() => setHoveredIcon(label)}
+            onMouseLeave={() => setHoveredIcon(null)}
+          >
+            <Link 
+              href={href} 
+              className={`p-2 block ${shouldShowLabels ? 'flex flex-col items-center gap-2' : ''}`}
+              onClick={onItemClick}
+            >
+              <Icon
+                className={`w-6 h-6 hover:scale-110 transition-all duration-200 ${
+                  isActive 
+                    ? 'text-blue-400 hover:text-blue-500' 
+                    : ''
+                }`}
+                style={{ 
+                  color: isActive 
+                    ? undefined 
+                    : (hoveredIcon === label ? getHoverColor(label) : getBaseColor(label))
+                }}
+              />
+              {shouldShowLabels && (
+                <span className="text-white text-xs font-medium text-center">{label}</span>
+              )}
+            </Link>
+            {!shouldShowLabels && (
+              <span className={`${tooltipBase} ${tooltipClasses}`}>{label}</span>
             )}
-          </Link>
-          {!shouldShowLabels && (
-            <span className={`${tooltipBase} ${tooltipClasses}`}>{label}</span>
-          )}
-        </motion.div>
-      ))}
+          </motion.div>
+        );
+      })}
     </motion.nav>
   );
 };

@@ -167,33 +167,22 @@ export const GlobalNavigation = () => {
                         <Image 
                           src="/images/icons/bfs_logo.png" 
                           alt="BFS Logo" 
-                          width={28}
-                          height={28}
-                          className="w-7 h-7 sm:w-8 sm:h-8 hover:scale-110 transition-transform duration-200"
+                          width={32}
+                          height={32}
+                          className="w-10 h-10 sm:w-10 sm:h-10 hover:scale-110 transition-transform duration-200"
                         />
                       </Link>
                     </div>
                     
                     {/* Navigation Icons */}
-                    <div className="flex flex-col gap-5 sm:gap-4">
-                      {getTopItemsWithHighlight().map(({ label, href, Icon, isActive }) => (
-                        <Link 
-                          key={label} 
-                          href={href} 
-                          onClick={() => setMenuOpen(false)}
-                          className="flex flex-col items-center gap-1.5 sm:gap-2"
-                        >
-                          <Icon
-                            className={`w-5 h-5 sm:w-6 sm:h-6 hover:scale-110 transition-all duration-200 ${
-                              isActive 
-                                ? 'text-blue-400 hover:text-blue-500' 
-                                : 'text-white hover:text-blue-200'
-                            }`}
-                          />
-                          <span className="text-white text-xs font-medium text-center">{label}</span>
-                        </Link>
-                      ))}
-                    </div>
+                    <NavBar 
+                      items={getTopItemsWithHighlight()} 
+                      direction="vertical" 
+                      tooltipPosition="left" 
+                      className="bg-transparent" 
+                      showLabels={true}
+                      onItemClick={() => setMenuOpen(false)}
+                    />
                   </div>
                   
                   {/* Divider */}
