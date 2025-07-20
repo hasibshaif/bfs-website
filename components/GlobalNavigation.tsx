@@ -165,7 +165,7 @@ export const GlobalNavigation = () => {
                     <div className="flex justify-center mb-6 sm:mb-4">
                       <Link href="/" onClick={() => setMenuOpen(false)}>
                         <Image 
-                          src="/icons/bfs_logo.png" 
+                          src="/images/icons/bfs_logo.png" 
                           alt="BFS Logo" 
                           width={28}
                           height={28}
