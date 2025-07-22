@@ -78,7 +78,7 @@ export const NavBar: React.FC<{
 
   return (
     <motion.nav
-      className={`${className} flex ${isHorizontal ? "flex-row gap-6" : "flex-col gap-4"} bg-blue-300/10 backdrop-blur px-6 py-3 rounded-full`}
+      className={`${className} flex ${isHorizontal ? "flex-row gap-6" : "flex-col gap-3 xs:gap-2 sm:gap-3 md:gap-4"} ${className?.includes('bg-transparent') ? '' : 'bg-blue-300/10 backdrop-blur'} px-3 xs:px-2 sm:px-4 md:px-5 lg:px-6 py-2 xs:py-1.5 sm:py-2.5 md:py-3 rounded-full`}
       variants={container}
       initial="hidden"
       animate="visible"
@@ -99,7 +99,7 @@ export const NavBar: React.FC<{
               onClick={onItemClick}
             >
               <Icon
-                className={`w-6 h-6 hover:scale-110 transition-all duration-200 ${
+                className={`w-5 h-5 xs:w-4 xs:h-4 sm:w-5 sm:h-5 md:w-6 md:h-6 hover:scale-110 transition-all duration-200 ${
                   isActive 
                     ? 'text-blue-400 hover:text-blue-500' 
                     : ''
