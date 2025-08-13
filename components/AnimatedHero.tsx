@@ -32,8 +32,8 @@ export const AnimatedHero: React.FC = () => {
   const playKeyboardSound = () => {
     if (audioRef.current) {
       audioRef.current.currentTime = 0;
-      audioRef.current.play().catch(err => {
-        console.log('Audio play prevented:', err);
+      audioRef.current.play().catch(() => {
+        // Audio play prevented by browser policy
       });
     }
   };

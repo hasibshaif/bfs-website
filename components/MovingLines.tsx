@@ -68,7 +68,7 @@ const Line: React.FC<{
         opacity: [0, rand(0.4, 0.9), 0],
       }}
       transition={{
-        duration: rand(20, 60),
+        duration: rand(1, 60),
         repeat: Infinity,
         ease: "linear",
       }}

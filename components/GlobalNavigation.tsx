@@ -14,9 +14,31 @@ import { SiLinktree } from "react-icons/si";
 import { usePathname } from "next/navigation";
 import { useEffect, useState } from "react";
 import { Menu, X } from "lucide-react";
-import { motion, AnimatePresence } from "motion/react";
+import { motion, AnimatePresence, Variants } from "motion/react";
 import Image from "next/image";
 import Link from "next/link";
+
+// Animation variants for the top navigation
+const topNavContainer: Variants = {
+  hidden: { scale: 0.5, opacity: 0 },
+  visible: {
+    scale: 1,
+    opacity: 1,
+    transition: {
+      type: "spring",
+      stiffness: 80,
+      damping: 12,
+      mass: 1,
+      when: "beforeChildren",
+      staggerChildren: 0.1,
+    },
+  },
+};
+
+const topNavItem: Variants = {
+  hidden: { opacity: 0, y: -10 },
+  visible: { opacity: 1, y: 0, transition: { duration: 0.3 } },
+};
 
 export const GlobalNavigation = () => {
   const pathname = usePathname();
@@ -89,20 +111,27 @@ export const GlobalNavigation = () => {
           {/* Fixed Top Navigation - Desktop Only */}
           <div className="hidden md:block fixed top-4 left-1/2 transform -translate-x-1/2 z-50">
             {/* Consistent navigation with logo across all pages */}
-            <div className="flex items-center justify-between bg-blue-300/10 backdrop-blur px-6 sm:px-8 lg:px-12 py-3 rounded-full border border-white/10 min-w-[20rem] sm:min-w-[24rem] lg:min-w-[32rem] xl:min-w-[36rem]">
+            <motion.div 
+              className="flex items-center justify-between bg-blue-300/10 backdrop-blur px-6 sm:px-8 lg:px-12 py-3 rounded-full border border-white/10 min-w-[20rem] sm:min-w-[24rem] lg:min-w-[32rem] xl:min-w-[36rem]"
+              variants={topNavContainer}
+              initial="hidden"
+              animate="visible"
+            >
               {/* BFS Logo */}
-              <Link href="/" className="flex items-center">
-                <Image 
-                  src="/images/icons/bfs_logo.png" 
-                  alt="BFS Logo" 
-                  width={28}
-                  height={28}
-                  className="w-7 h-7 sm:w-8 sm:h-8 hover:scale-110 transition-transform duration-200"
-                />
-              </Link>
+              <motion.div variants={topNavItem}>
+                <Link href="/" className="flex items-center">
+                  <Image 
+                    src="/images/icons/bfs_logo.png" 
+                    alt="BFS Logo" 
+                    width={28}
+                    height={28}
+                    className="w-7 h-7 sm:w-8 sm:h-8 hover:scale-110 transition-transform duration-200"
+                  />
+                </Link>
+              </motion.div>
               
               {/* Navigation Icons */}
-              <div className="flex gap-4 sm:gap-6 lg:gap-8">
+              <motion.div className="flex gap-4 sm:gap-6 lg:gap-8" variants={topNavItem}>
                 {getTopItemsWithHighlight().map(({ label, href, Icon, isActive }) => (
                   <Link 
                     key={label} 
@@ -121,8 +150,8 @@ export const GlobalNavigation = () => {
                     </span>
                   </Link>
                 ))}
-              </div>
-            </div>
+              </motion.div>
+            </motion.div>
           </div>
 
           {/* Fixed Bottom Navigation - Desktop Only */}
