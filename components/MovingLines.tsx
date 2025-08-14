@@ -1,7 +1,8 @@
 // components/ui/moving-lines.tsx
 "use client";
-import React, { useRef, useEffect, useState } from "react";
+import React, { useRef, useEffect, useState, useMemo, useCallback } from "react";
 import { motion } from "motion/react";
+import { isLowPerformanceDevice, getOptimizedAnimationSettings } from "@/lib/performance";
 
 const COLORS = [
   "#393b9c",
@@ -42,18 +43,32 @@ const Line: React.FC<{
   height: number;
   strokeWidthRange: [number, number];
   lineIndex: number;
-}> = ({ width, height, strokeWidthRange: [minW, maxW], lineIndex }) => {
+  isLowPerformance: boolean;
+}> = ({ width, height, strokeWidthRange: [minW, maxW], lineIndex, isLowPerformance }) => {
   const [from, setFrom] = useState("");
   const [to, setTo]     = useState("");
   const [gradientId] = useState(`gradient-${lineIndex}`);
 
+  // Memoize path generation to avoid recalculation
+  const paths = useMemo(() => {
+    if (!width || !height) return { from: "", to: "" };
+    return {
+      from: generatePath(width, height, isLowPerformance ? 200 : 300, isLowPerformance ? 4 : 2),
+      to: generatePath(width, height, isLowPerformance ? 200 : 300, isLowPerformance ? 4 : 2)
+    };
+  }, [width, height, isLowPerformance]);
+
   useEffect(() => {
-    if (!width || !height) return;
-    setFrom(generatePath(width, height));
-    setTo(generatePath(width, height));
-  }, [width, height]);
+    setFrom(paths.from);
+    setTo(paths.to);
+  }, [paths]);
 
   if (!from || !to) return null;
+
+  // Optimize animation parameters for low performance devices
+  const settings = getOptimizedAnimationSettings();
+  const duration = rand(settings.animationDuration.min, settings.animationDuration.max);
+  const opacityRange = isLowPerformance ? [0, rand(0.3, 0.6), 0] : [0, rand(0.4, 0.9), 0];
 
   return (
     <motion.path
@@ -65,10 +80,10 @@ const Line: React.FC<{
       initial={{ opacity: 0 }}
       animate={{
         d: [from, to, from],
-        opacity: [0, rand(0.4, 0.9), 0],
+        opacity: opacityRange,
       }}
       transition={{
-        duration: rand(1, 60),
+        duration,
         repeat: Infinity,
         ease: "linear",
       }}
@@ -76,55 +91,67 @@ const Line: React.FC<{
   );
 };
 
-const GradientDefinitions: React.FC<{ numLines: number }> = ({ numLines }) => {
+const GradientDefinitions: React.FC<{ 
+  numLines: number; 
+  isLowPerformance: boolean;
+}> = ({ numLines, isLowPerformance }) => {
+  // Memoize gradient definitions to avoid recalculation
+  const gradients = useMemo(() => {
+    return Array.from({ length: numLines }).map((_, i) => {
+      const baseColor1 = COLORS[Math.floor(Math.random() * COLORS.length)];
+      const baseColor2 = COLORS[Math.floor(Math.random() * COLORS.length)];
+      const baseColor3 = COLORS[Math.floor(Math.random() * COLORS.length)];
+      
+      return {
+        id: i,
+        colors: [baseColor1, baseColor2, baseColor3],
+        duration: isLowPerformance ? rand(12, 20) : rand(8, 15)
+      };
+    });
+  }, [numLines, isLowPerformance]);
+
   return (
     <defs>
-      {Array.from({ length: numLines }).map((_, i) => {
-        const baseColor1 = COLORS[Math.floor(Math.random() * COLORS.length)];
-        const baseColor2 = COLORS[Math.floor(Math.random() * COLORS.length)];
-        const baseColor3 = COLORS[Math.floor(Math.random() * COLORS.length)];
-        
-        return (
-          <linearGradient key={i} id={`gradient-${i}`} gradientUnits="userSpaceOnUse">
-            <motion.stop
-              offset="0%"
-              stopColor={baseColor1}
-              animate={{
-                stopColor: [baseColor1, baseColor2, baseColor3, baseColor1],
-              }}
-              transition={{
-                duration: rand(8, 15),
-                repeat: Infinity,
-                ease: "easeInOut",
-              }}
-            />
-            <motion.stop
-              offset="50%"
-              stopColor={baseColor2}
-              animate={{
-                stopColor: [baseColor2, baseColor3, baseColor1, baseColor2],
-              }}
-              transition={{
-                duration: rand(8, 15),
-                repeat: Infinity,
-                ease: "easeInOut",
-              }}
-            />
-            <motion.stop
-              offset="100%"
-              stopColor={baseColor3}
-              animate={{
-                stopColor: [baseColor3, baseColor1, baseColor2, baseColor3],
-              }}
-              transition={{
-                duration: rand(8, 15),
-                repeat: Infinity,
-                ease: "easeInOut",
-              }}
-            />
-          </linearGradient>
-        );
-      })}
+      {gradients.map((gradient) => (
+        <linearGradient key={gradient.id} id={`gradient-${gradient.id}`} gradientUnits="userSpaceOnUse">
+          <motion.stop
+            offset="0%"
+            stopColor={gradient.colors[0]}
+            animate={{
+              stopColor: [gradient.colors[0], gradient.colors[1], gradient.colors[2], gradient.colors[0]],
+            }}
+            transition={{
+              duration: gradient.duration,
+              repeat: Infinity,
+              ease: "easeInOut",
+            }}
+          />
+          <motion.stop
+            offset="50%"
+            stopColor={gradient.colors[1]}
+            animate={{
+              stopColor: [gradient.colors[1], gradient.colors[2], gradient.colors[0], gradient.colors[1]],
+            }}
+            transition={{
+              duration: gradient.duration,
+              repeat: Infinity,
+              ease: "easeInOut",
+            }}
+          />
+          <motion.stop
+            offset="100%"
+            stopColor={gradient.colors[2]}
+            animate={{
+              stopColor: [gradient.colors[2], gradient.colors[0], gradient.colors[1], gradient.colors[2]],
+            }}
+            transition={{
+              duration: gradient.duration,
+              repeat: Infinity,
+              ease: "easeInOut",
+            }}
+          />
+        </linearGradient>
+      ))}
     </defs>
   );
 };
@@ -136,18 +163,36 @@ export const MovingLines: React.FC<MovingLinesProps> = ({
 }) => {
   const ref = useRef<HTMLDivElement>(null);
   const [dims, setDims] = useState({ width: 0, height: 0 });
+  const [isLowPerformance, setIsLowPerformance] = useState(false);
+
+  // Optimize resize handling with debouncing
+  const updateDims = useCallback(() => {
+    if (ref.current) {
+      const { width, height } = ref.current.getBoundingClientRect();
+      setDims({ width, height });
+    }
+  }, []);
 
   useEffect(() => {
-    const update = () => {
-      if (ref.current) {
-        const { width, height } = ref.current.getBoundingClientRect();
-        setDims({ width, height });
-      }
+    setIsLowPerformance(isLowPerformanceDevice());
+    updateDims();
+    
+    let timeoutId: NodeJS.Timeout;
+    const handleResize = () => {
+      clearTimeout(timeoutId);
+      timeoutId = setTimeout(updateDims, 100); // Debounce resize events
     };
-    update();
-    window.addEventListener("resize", update);
-    return () => window.removeEventListener("resize", update);
-  }, []);
+    
+    window.addEventListener("resize", handleResize);
+    return () => {
+      window.removeEventListener("resize", handleResize);
+      clearTimeout(timeoutId);
+    };
+  }, [updateDims]);
+
+  // Reduce number of lines on low performance devices
+  const settings = getOptimizedAnimationSettings();
+  const optimizedNumLines = isLowPerformance ? Math.min(numLines, settings.maxLines) : numLines;
 
   return (
     <div
@@ -158,17 +203,21 @@ export const MovingLines: React.FC<MovingLinesProps> = ({
         width="100%"
         height="100%"
         className="absolute inset-0"
-        shapeRendering="auto"
+        shapeRendering={isLowPerformance ? "optimizeSpeed" : "auto"}
+        style={{
+          willChange: isLowPerformance ? "transform" : "auto",
+        }}
       >
-        <GradientDefinitions numLines={numLines} />
+        <GradientDefinitions numLines={optimizedNumLines} isLowPerformance={isLowPerformance} />
         {dims.width > 0 &&
-          Array.from({ length: numLines }).map((_, i) => (
+          Array.from({ length: optimizedNumLines }).map((_, i) => (
             <Line
               key={i}
               width={dims.width}
               height={dims.height}
               strokeWidthRange={strokeWidthRange}
               lineIndex={i}
+              isLowPerformance={isLowPerformance}
             />
           ))}
       </svg>

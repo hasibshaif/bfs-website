@@ -142,8 +142,10 @@ export async function GET() {
                   }
                   return null;
                 }).filter((url: string | null): url is string => url !== null);
-              } catch {
+              } catch (error) {
+                console.error(`Google Drive API error for event ${eventInfo.eventName}:`, error);
                 // Fall back to local files if Google Drive fails
+                // Continue with empty arrays for mediaUrls and videoThumbnailUrls
               }
             }
 
@@ -172,7 +174,11 @@ export async function GET() {
     );
 
     return NextResponse.json(sortedEvents);
-  } catch {
-    return NextResponse.json({ error: 'Failed to load gallery' }, { status: 500 });
+  } catch (error) {
+    console.error('Gallery API error:', error);
+    return NextResponse.json({ 
+      error: 'Failed to load gallery',
+      details: process.env.NODE_ENV === 'development' ? (error as Error).message : undefined
+    }, { status: 500 });
   }
 }

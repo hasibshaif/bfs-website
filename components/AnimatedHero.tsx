@@ -1,9 +1,10 @@
 // components/animated-hero.tsx
 "use client";
-import React, { useState, useEffect, useRef } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import { motion } from "motion/react";
 import { MovingLines } from "./MovingLines";
 import { RotateCcw } from "lucide-react";
+import { isLowPerformanceDevice, getOptimizedAnimationSettings } from "@/lib/performance";
 
 export const AnimatedHero: React.FC = () => {
   const initial = "{bfs}";
@@ -15,42 +16,35 @@ export const AnimatedHero: React.FC = () => {
   const [displaySub, setDisplaySub] = useState("");
   const [showMainCursor, setShowMainCursor] = useState(true);
   const [animationComplete, setAnimationComplete] = useState(false);
+  const [isLowPerformance, setIsLowPerformance] = useState(false);
   
-  // Audio for keyboard sound
-  const audioRef = useRef<HTMLAudioElement | null>(null);
   useEffect(() => {
-    audioRef.current = new Audio('/audio/keyboard-click1.mp3');
-    audioRef.current.volume = 0.4;
-    
-    return () => {
-      if (audioRef.current) {
-        audioRef.current.pause();
-        audioRef.current = null;
-      }
-    };
+    const lowPerformance = isLowPerformanceDevice();
+    setIsLowPerformance(lowPerformance);
   }, []);
-  const playKeyboardSound = () => {
-    if (audioRef.current) {
-      audioRef.current.currentTime = 0;
-      audioRef.current.play().catch(() => {
-        // Audio play prevented by browser policy
-      });
-    }
-  };
 
-  const startAnimation = () => {
+  const playKeyboardSound = useCallback(() => {
+    // Audio functionality removed
+  }, []);
+
+  const startAnimation = useCallback(() => {
     const timers: NodeJS.Timeout[] = [];
-
+    const settings = getOptimizedAnimationSettings();
+    
+    // Adjust timing based on device performance
+    const baseDelay = settings.baseTypingDelay;
+    const subDelay = settings.subTypingDelay;
+    
     // 1) type bfs
     initial.split("").forEach((ch, i) => {
       timers.push(
         setTimeout(() => {
           setDisplayText((t) => t + ch);
           playKeyboardSound();
-        }, i * 120)
+        }, i * baseDelay)
       );
     });
-    const deleteStart = initial.length * 120 + 180;
+    const deleteStart = initial.length * baseDelay + 180;
     timers.push(setTimeout(() => setShowMainCursor(false), deleteStart));
 
     // 3) delete bfs
@@ -64,13 +58,13 @@ export const AnimatedHero: React.FC = () => {
               setDisplayText((t) => t.slice(0, -1));
               playKeyboardSound();
             },
-            deleteStart + i * 120
+            deleteStart + i * baseDelay
           )
         )
       );
 
     // 4) Type fullText
-    const fullStart = deleteStart + initial.length * 120 + 180;
+    const fullStart = deleteStart + initial.length * baseDelay + 180;
     timers.push(setTimeout(() => setShowMainCursor(true), fullStart));
     fullText.split("").forEach((ch, i) =>
       timers.push(
@@ -79,11 +73,11 @@ export const AnimatedHero: React.FC = () => {
             setDisplayText((t) => t + ch);
             playKeyboardSound();
           },
-          fullStart + i * 100
+          fullStart + i * settings.fullTextDelay // Slower typing for full text
         )
       )
     );
-    const fullEnd = fullStart + fullText.length * 100;
+    const fullEnd = fullStart + fullText.length * settings.fullTextDelay;
     timers.push(setTimeout(() => setShowMainCursor(false), fullEnd));
 
     // 5) Type subText
@@ -94,13 +88,13 @@ export const AnimatedHero: React.FC = () => {
           () => {
             setDisplaySub((t) => t + ch);
           },
-          subStart + i * 15
+          subStart + i * subDelay
         )
       )
     );
 
     // 6) show nav (triggers global navigation)
-    const subEnd = subStart + subText.length * 15;
+    const subEnd = subStart + subText.length * subDelay;
     timers.push(setTimeout(() => {
       sessionStorage.setItem('bfs-animation-completed', 'true');
       setAnimationComplete(true);
@@ -109,9 +103,9 @@ export const AnimatedHero: React.FC = () => {
     }, subEnd + 150));
 
     return () => timers.forEach(clearTimeout);
-  };
+  }, [isLowPerformance, playKeyboardSound]);
 
-  const replayAnimation = () => {
+  const replayAnimation = useCallback(() => {
     setDisplayText("");
     setDisplaySub("");
     setShowMainCursor(true);
@@ -124,7 +118,7 @@ export const AnimatedHero: React.FC = () => {
     window.dispatchEvent(new CustomEvent('bfs-animation-started'));
     
     return startAnimation();
-  };
+  }, [startAnimation]);
   
   // session storage to check if animation alr been completed in session
   useEffect(() => {
@@ -142,8 +136,12 @@ export const AnimatedHero: React.FC = () => {
 
   return (
     <div className="relative bg-gradient-to-br from-[#010617] to-[#000000] w-full flex flex-col items-center justify-center min-h-screen overflow-hidden px-4 sm:px-6 md:px-8">
-      {/* background lines */}
-      <MovingLines numLines={5} strokeWidthRange={[2, 12]} className="z-0 opacity-70" />
+      {/* background lines - more lines on mobile for visual interest */}
+      <MovingLines 
+        numLines={isLowPerformance ? 4 : 5} 
+        strokeWidthRange={isLowPerformance ? [2, 8] : [2, 12]} 
+        className="z-0 opacity-70" 
+      />
 
       {/* main text */}
       <motion.div
@@ -154,6 +152,9 @@ export const AnimatedHero: React.FC = () => {
           WebkitBackgroundClip: "text",
           WebkitTextFillColor: "transparent",
         }}
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.8, ease: "easeOut" }}
       >
         {displayText}
         {showMainCursor && <MainCursor />}
@@ -164,17 +165,21 @@ export const AnimatedHero: React.FC = () => {
         <motion.p
           className="z-10 font-extralight text-white mt-8 text-lg sm:text-lg md:text-3xl text-center leading-relaxed tracking-tighter"
           style={{ fontFamily: "var(--font-azeret-mono)" }}
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ delay: 0.2, duration: 0.8 }}
+          initial={{ opacity: 0, y: 10 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.2, duration: 0.8, ease: "easeOut" }}
         >
           {displaySub}
           <SubCursor />
         </motion.p>
       )}
 
-      {/* foreground lines */}
-      <MovingLines numLines={2} strokeWidthRange={[2, 4]} className="z-10 opacity-60" />
+      {/* foreground lines - more lines on mobile for visual interest */}
+      <MovingLines 
+        numLines={isLowPerformance ? 2 : 2} 
+        strokeWidthRange={isLowPerformance ? [1, 3] : [2, 4]} 
+        className="z-10 opacity-60" 
+      />
 
       {/* replay button */}
       {animationComplete && (
@@ -203,8 +208,16 @@ const MainCursor: React.FC = () => (
     style={{
       background: "linear-gradient(to bottom, #FFFFFF 0%, #BDCDFF 100%)",
     }}
-    animate={{ opacity: [1, 0] }}
-    transition={{ repeat: Infinity, repeatType: "reverse", duration: 0.6 }}
+    animate={{ 
+      opacity: [1, 0],
+      scaleY: [1, 0.8, 1]
+    }}
+    transition={{ 
+      repeat: Infinity, 
+      repeatType: "reverse", 
+      duration: 0.6,
+      ease: "easeInOut"
+    }}
   />
 );
 
@@ -214,7 +227,15 @@ const SubCursor: React.FC = () => (
     style={{
       background: "linear-gradient(to bottom, #FFFFFF 0%, #BDCDFF 100%)",
     }}
-    animate={{ opacity: [1, 0] }}
-    transition={{ repeat: Infinity, repeatType: "reverse", duration: 0.6 }}
+    animate={{ 
+      opacity: [1, 0],
+      scaleY: [1, 0.7, 1]
+    }}
+    transition={{ 
+      repeat: Infinity, 
+      repeatType: "reverse", 
+      duration: 0.6,
+      ease: "easeInOut"
+    }}
   />
 );
