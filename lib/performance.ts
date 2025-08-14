@@ -1,5 +1,15 @@
 // lib/performance.ts
 
+// TypeScript interfaces for navigator extensions
+interface NetworkInformation {
+  effectiveType: 'slow-2g' | '2g' | '3g' | '4g';
+}
+
+interface NavigatorWithExtensions extends Navigator {
+  deviceMemory?: number;
+  connection?: NetworkInformation;
+}
+
 /**
  * Detects if the current device is likely to have performance limitations
  * for animations and complex visual effects.
@@ -17,11 +27,12 @@ export const isLowPerformanceDevice = (): boolean => {
   const isLowEnd = navigator.hardwareConcurrency ? navigator.hardwareConcurrency <= 4 : false;
   
   // Check for low memory devices
-  const isLowMemory = (navigator as any).deviceMemory ? (navigator as any).deviceMemory <= 4 : false;
+  const navigatorWithExtensions = navigator as NavigatorWithExtensions;
+  const isLowMemory = navigatorWithExtensions.deviceMemory ? navigatorWithExtensions.deviceMemory <= 4 : false;
   
   // Check for slow connection
-  const isSlowConnection = (navigator as any).connection ? 
-    ['slow-2g', '2g', '3g'].includes((navigator as any).connection.effectiveType) : false;
+  const isSlowConnection = navigatorWithExtensions.connection ? 
+    ['slow-2g', '2g', '3g'].includes(navigatorWithExtensions.connection.effectiveType) : false;
   
   return isMobile || prefersReducedMotion || isLowEnd || isLowMemory || isSlowConnection;
 };
