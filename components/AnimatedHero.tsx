@@ -103,7 +103,7 @@ export const AnimatedHero: React.FC = () => {
     }, subEnd + 150));
 
     return () => timers.forEach(clearTimeout);
-  }, [isLowPerformance, playKeyboardSound]);
+  }, [playKeyboardSound]);
 
   const replayAnimation = useCallback(() => {
     setDisplayText("");

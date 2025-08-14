@@ -3,6 +3,24 @@
 import { useEffect, useRef } from 'react';
 import { isLowPerformanceDevice } from '@/lib/performance';
 
+// TypeScript interfaces for navigator and performance extensions
+interface NetworkInformation {
+  effectiveType: 'slow-2g' | '2g' | '3g' | '4g';
+}
+
+interface NavigatorWithExtensions extends Navigator {
+  deviceMemory?: number;
+  connection?: NetworkInformation;
+}
+
+interface PerformanceWithMemory extends Performance {
+  memory?: {
+    usedJSHeapSize: number;
+    totalJSHeapSize: number;
+    jsHeapSizeLimit: number;
+  };
+}
+
 interface PerformanceMetrics {
   fps: number;
   frameTime: number;
@@ -19,14 +37,17 @@ interface PerformanceMetrics {
 export const PerformanceMonitor: React.FC = () => {
   const frameCount = useRef(0);
   const lastTime = useRef(performance.now());
+  const navigatorWithExtensions = navigator as NavigatorWithExtensions;
+  const performanceWithMemory = performance as PerformanceWithMemory;
+  
   const metrics = useRef<PerformanceMetrics>({
     fps: 0,
     frameTime: 0,
     deviceInfo: {
       userAgent: navigator.userAgent,
       hardwareConcurrency: navigator.hardwareConcurrency || 0,
-      deviceMemory: (navigator as any).deviceMemory,
-      connectionType: (navigator as any).connection?.effectiveType,
+      deviceMemory: navigatorWithExtensions.deviceMemory,
+      connectionType: navigatorWithExtensions.connection?.effectiveType,
       isLowPerformance: isLowPerformanceDevice(),
     }
   });
@@ -50,7 +71,8 @@ export const PerformanceMonitor: React.FC = () => {
             fps,
             frameTime: frameTime.toFixed(2) + 'ms',
             deviceInfo: metrics.current.deviceInfo,
-            memoryUsage: (performance as any).memory?.usedJSHeapSize / 1024 / 1024
+            memoryUsage: performanceWithMemory.memory?.usedJSHeapSize ? 
+              Math.round(performanceWithMemory.memory.usedJSHeapSize / 1024 / 1024 * 100) / 100 : undefined
           });
         }
         
