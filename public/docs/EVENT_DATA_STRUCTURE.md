@@ -5,7 +5,7 @@ This directory contains event metadata for the gallery. Each event is organized 
 ## Structure
 
 ```
-app/data/events/
+app/data/gallery/
 ├── spring_2025/
 │   ├── club_showcase/
 │   │   └── event-info.json
@@ -38,7 +38,7 @@ Each event folder must contain an `event-info.json` file with the following stru
 
 ## Adding New Events
 
-1. Create a new folder: `app/data/events/[semester]/[event_name]/`
+1. Create a new folder: `app/data/gallery/[semester]/[event_name]/`
 2. Add `event-info.json` with event metadata
 3. Set up a Google Drive folder and add the folder ID
 4. Upload media files to the Google Drive folder

@@ -1,0 +1,367 @@
+/* Design Tokens - CSS Custom Properties */
+/* This file contains all standardized design tokens as CSS variables */
+
+:root {
+  /* Color Palette */
+  --color-primary-50: #f0f4ff;
+  --color-primary-100: #e0e9ff;
+  --color-primary-200: #c7d7ff;
+  --color-primary-300: #a5b8ff;
+  --color-primary-400: #8190ff;
+  --color-primary-500: #6366f1;
+  --color-primary-600: #4f46e5;
+  --color-primary-700: #4338ca;
+  --color-primary-800: #3730a3;
+  --color-primary-900: #312e81;
+
+  /* Background Colors */
+  --color-bg-primary: #030717;
+  --color-bg-secondary: #010617;
+  --color-bg-black: #000000;
+  --color-bg-card: rgba(255, 255, 255, 0.05);
+  --color-bg-card-hover: rgba(255, 255, 255, 0.08);
+  --color-bg-blue: rgba(59, 130, 246, 0.1);
+  --color-bg-blue-hover: rgba(59, 130, 246, 0.2);
+
+  /* Text Colors */
+  --color-text-primary: #FFFFFF;
+  --color-text-secondary: rgba(255, 255, 255, 0.8);
+  --color-text-tertiary: rgba(255, 255, 255, 0.6);
+  --color-text-muted: rgba(255, 255, 255, 0.4);
+  --color-text-blue: #b3c5fc;
+  --color-text-blue-light: #93c5fd;
+
+  /* Border Colors */
+  --color-border-primary: rgba(255, 255, 255, 0.1);
+  --color-border-secondary: rgba(255, 255, 255, 0.2);
+  --color-border-blue: rgba(59, 130, 246, 0.2);
+  --color-border-blue-light: rgba(147, 197, 253, 0.2);
+
+  /* Status Colors */
+  --color-success: #10b981;
+  --color-warning: #f59e0b;
+  --color-error: #ef4444;
+  --color-info: #3b82f6;
+
+  /* Typography */
+  --font-family-primary: var(--font-azeret-mono);
+  --font-family-secondary: var(--font-ubuntu);
+  --font-family-fallback: Arial, Helvetica, sans-serif;
+
+  /* Font Weights */
+  --font-weight-extralight: 200;
+  --font-weight-light: 300;
+  --font-weight-normal: 400;
+  --font-weight-medium: 500;
+  --font-weight-semibold: 600;
+  --font-weight-bold: 700;
+
+  /* Font Sizes */
+  --font-size-xs: 0.75rem;
+  --font-size-sm: 0.875rem;
+  --font-size-base: 1rem;
+  --font-size-lg: 1.125rem;
+  --font-size-xl: 1.25rem;
+  --font-size-2xl: 1.5rem;
+  --font-size-3xl: 1.875rem;
+  --font-size-4xl: 2.25rem;
+  --font-size-5xl: 3rem;
+  --font-size-6xl: 3.75rem;
+  --font-size-7xl: 4.5rem;
+  --font-size-8xl: 6rem;
+  --font-size-9xl: 8rem;
+
+  /* Line Heights */
+  --line-height-tight: 1.25;
+  --line-height-normal: 1.5;
+  --line-height-relaxed: 1.75;
+  --line-height-loose: 2;
+
+  /* Letter Spacing */
+  --letter-spacing-tighter: -0.05em;
+  --letter-spacing-tight: -0.025em;
+  --letter-spacing-normal: 0em;
+  --letter-spacing-wide: 0.025em;
+  --letter-spacing-wider: 0.05em;
+  --letter-spacing-widest: 0.1em;
+
+  /* Spacing */
+  --spacing-xs: 0.25rem;
+  --spacing-sm: 0.5rem;
+  --spacing-md: 1rem;
+  --spacing-lg: 1.5rem;
+  --spacing-xl: 2rem;
+  --spacing-2xl: 3rem;
+  --spacing-3xl: 4rem;
+  --spacing-4xl: 6rem;
+  --spacing-5xl: 8rem;
+
+  /* Border Radius */
+  --radius-sm: 0.375rem;
+  --radius-md: 0.5rem;
+  --radius-lg: 0.75rem;
+  --radius-xl: 1rem;
+  --radius-2xl: 1.5rem;
+  --radius-full: 9999px;
+
+  /* Shadows */
+  --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+  --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+  --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+  --shadow-xl: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+  --shadow-blue: 0 0 10px rgba(59, 130, 246, 0.3);
+  --shadow-blue-glow: 0 0 20px rgba(59, 130, 246, 0.4);
+
+  /* Transitions */
+  --transition-fast: 150ms ease-in-out;
+  --transition-normal: 200ms ease-in-out;
+  --transition-slow: 300ms ease-in-out;
+  --transition-slower: 500ms ease-in-out;
+
+  /* Z-Index */
+  --z-base: 0;
+  --z-content: 10;
+  --z-navigation: 20;
+  --z-modal: 50;
+  --z-tooltip: 60;
+  --z-overlay: 40;
+
+  /* Gradients */
+  --gradient-text-primary: linear-gradient(to right, #FFFFFF 0%, #b3c5fc 100%);
+  --gradient-text-secondary: linear-gradient(to right, #FFFFFF 0%, #93c5fd 100%);
+  --gradient-text-blue: linear-gradient(to right, #3b82f6 0%, #93c5fd 100%);
+  
+  --gradient-bg-primary: linear-gradient(to bottom right, #030717, #000000);
+  --gradient-bg-secondary: linear-gradient(to bottom right, #010617, #000000);
+  --gradient-bg-card: linear-gradient(135deg, rgba(255, 255, 255, 0.05) 0%, rgba(255, 255, 255, 0.02) 100%);
+  --gradient-bg-blue: linear-gradient(135deg, rgba(59, 130, 246, 0.1) 0%, rgba(147, 197, 253, 0.05) 100%);
+  
+  --gradient-border-blue: linear-gradient(to right, #3b82f6, #93c5fd);
+  --gradient-border-blue-glow: linear-gradient(to right, #3b82f6, #93c5fd), linear-gradient(to bottom right, #030717, #000000);
+  
+  --gradient-timeline-line: linear-gradient(to bottom, rgba(59, 130, 246, 0.6) 0%, rgba(147, 197, 253, 0.4) 50%, transparent 100%);
+}
+
+/* Utility Classes */
+.text-gradient-primary {
+  background: var(--gradient-text-primary);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.text-gradient-secondary {
+  background: var(--gradient-text-secondary);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.text-gradient-blue {
+  background: var(--gradient-text-blue);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.bg-gradient-primary {
+  background: var(--gradient-bg-primary);
+}
+
+.bg-gradient-secondary {
+  background: var(--gradient-bg-secondary);
+}
+
+.bg-gradient-card {
+  background: var(--gradient-bg-card);
+}
+
+.bg-gradient-blue {
+  background: var(--gradient-bg-blue);
+}
+
+.border-gradient-blue {
+  border-image: var(--gradient-border-blue) 1;
+}
+
+.glass-morphism {
+  background-color: var(--color-bg-card);
+  backdrop-filter: blur(8px);
+  border: 1px solid var(--color-border-primary);
+}
+
+.glass-morphism-hover {
+  background-color: var(--color-bg-card-hover);
+  backdrop-filter: blur(8px);
+  border: 1px solid var(--color-border-primary);
+}
+
+/* Typography Utilities */
+.font-primary {
+  font-family: var(--font-family-primary);
+}
+
+.font-secondary {
+  font-family: var(--font-family-secondary);
+}
+
+.font-extralight {
+  font-weight: var(--font-weight-extralight);
+}
+
+.font-light {
+  font-weight: var(--font-weight-light);
+}
+
+.font-normal {
+  font-weight: var(--font-weight-normal);
+}
+
+.font-medium {
+  font-weight: var(--font-weight-medium);
+}
+
+.font-semibold {
+  font-weight: var(--font-weight-semibold);
+}
+
+.font-bold {
+  font-weight: var(--font-weight-bold);
+}
+
+/* Text Color Utilities */
+.text-primary {
+  color: var(--color-text-primary);
+}
+
+.text-secondary {
+  color: var(--color-text-secondary);
+}
+
+.text-tertiary {
+  color: var(--color-text-tertiary);
+}
+
+.text-muted {
+  color: var(--color-text-muted);
+}
+
+.text-blue {
+  color: var(--color-text-blue);
+}
+
+.text-blue-light {
+  color: var(--color-text-blue-light);
+}
+
+/* Background Color Utilities */
+.bg-primary {
+  background-color: var(--color-bg-primary);
+}
+
+.bg-secondary {
+  background-color: var(--color-bg-secondary);
+}
+
+.bg-card {
+  background-color: var(--color-bg-card);
+}
+
+.bg-card-hover {
+  background-color: var(--color-bg-card-hover);
+}
+
+.bg-blue {
+  background-color: var(--color-bg-blue);
+}
+
+.bg-blue-hover {
+  background-color: var(--color-bg-blue-hover);
+}
+
+/* Border Utilities */
+.border-primary {
+  border-color: var(--color-border-primary);
+}
+
+.border-secondary {
+  border-color: var(--color-border-secondary);
+}
+
+.border-blue {
+  border-color: var(--color-border-blue);
+}
+
+.border-blue-light {
+  border-color: var(--color-border-blue-light);
+}
+
+/* Shadow Utilities */
+.shadow-blue {
+  box-shadow: var(--shadow-blue);
+}
+
+.shadow-blue-glow {
+  box-shadow: var(--shadow-blue-glow);
+}
+
+/* Transition Utilities */
+.transition-fast {
+  transition: all var(--transition-fast);
+}
+
+.transition-normal {
+  transition: all var(--transition-normal);
+}
+
+.transition-slow {
+  transition: all var(--transition-slow);
+}
+
+.transition-slower {
+  transition: all var(--transition-slower);
+}
+
+/* Animation Utilities */
+.animate-fade-in {
+  animation: fadeIn 0.8s ease-out;
+}
+
+.animate-fade-in-up {
+  animation: fadeInUp 0.8s ease-out;
+}
+
+.animate-scale-in {
+  animation: scaleIn 0.6s ease-out;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes scaleIn {
+  from {
+    opacity: 0;
+    transform: scale(0.9);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}

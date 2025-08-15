@@ -77,7 +77,7 @@ async function getGoogleDriveFiles(folderId: string) {
 
 export async function GET() {
   try {
-    const eventsPath = join(process.cwd(), 'app', 'data', 'events');
+    const eventsPath = join(process.cwd(), 'app', 'data', 'gallery');
     const events: EventFolder[] = [];
 
     // Recursively find all event-info.json files
@@ -151,7 +151,7 @@ export async function GET() {
 
             events.push({
               name: relativePath,
-              path: `/events/${relativePath}`,
+              path: `/gallery/${relativePath}`,
               mediaFiles,
               eventInfo,
               mediaUrls: mediaUrls.length > 0 ? mediaUrls : undefined,

@@ -1,4 +1,4 @@
-import { AnimatedHero } from "@/components/AnimatedHero";
+import { AnimatedHero } from "@/components/home/AnimatedHero";
 
 export default function Home() {
   return (
