@@ -102,8 +102,8 @@ export async function GET() {
             let mediaUrls: string[] = [];
             let videoThumbnailUrls: string[] = [];
 
-            // Check if this event uses Google Drive
-            if (eventInfo.googleDriveFolderId) {
+            // Check if this event uses Google Drive (only in development)
+            if (eventInfo.googleDriveFolderId && process.env.NODE_ENV === 'development') {
               try {
                 // Fetch files from Google Drive
                 const driveFiles = await getGoogleDriveFiles(eventInfo.googleDriveFolderId);
