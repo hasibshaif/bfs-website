@@ -28,11 +28,14 @@ export default function Gallery() {
     if (!loading && events.length > 0) {
       const hash = window.location.hash.slice(1); // Remove the # symbol
       if (hash) {
-        // Find the event with matching folder name
-        const targetEvent = events.find(event => 
-          event.name.toLowerCase().includes(hash.toLowerCase()) ||
-          event.name.toLowerCase().replace(/[^a-z0-9]/g, '') === hash.toLowerCase().replace(/[^a-z0-9]/g, '')
-        );
+        // Find the event with matching folder name or event name
+        const targetEvent = events.find(event => {
+          // Check if hash matches the event folder name (path)
+          const eventFolder = event.path.split('/').pop() || '';
+          return eventFolder === hash || 
+                 event.name.toLowerCase().includes(hash.toLowerCase()) ||
+                 event.name.toLowerCase().replace(/[^a-z0-9]/g, '') === hash.toLowerCase().replace(/[^a-z0-9]/g, '');
+        });
         
         if (targetEvent) {
           // Scroll to the event after a short delay to ensure rendering is complete

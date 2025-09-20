@@ -5,15 +5,15 @@ const nextConfig: NextConfig = {
     remotePatterns: [
       {
         protocol: 'https',
-        hostname: 'drive.google.com',
+        hostname: 'bfs-website-gallery-images.s3.amazonaws.com',
         port: '',
-        pathname: '/uc/**',
+        pathname: '/**',
       },
       {
         protocol: 'https',
-        hostname: 'drive.google.com',
+        hostname: 'bfs-website-gallery-images.s3.us-east-2.amazonaws.com',
         port: '',
-        pathname: '/thumbnail/**',
+        pathname: '/**',
       },
     ],
   },

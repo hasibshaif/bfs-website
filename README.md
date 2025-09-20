@@ -1,36 +1,110 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# BFS Website
+
+Baruch Full Stack's official website - a modern, responsive web application built with Next.js 15, featuring a dynamic gallery system powered by AWS S3.
+
+## Features
+
+- **Dynamic Gallery**: Automatically discovers and displays images from AWS S3 buckets
+- **Event Management**: Easy-to-manage event system with chronological sorting
+- **Modern UI**: Built with Tailwind CSS and custom design system
+- **Performance Optimized**: Next.js 15 with Turbopack for fast development
+- **Responsive Design**: Mobile-first approach with beautiful animations
+
+## Tech Stack
+
+- **Framework**: Next.js 15 with App Router
+- **Styling**: Tailwind CSS 4
+- **Animations**: Motion (Framer Motion)
+- **Icons**: Lucide React, React Icons
+- **TypeScript**: Full type safety
+- **Image Storage**: AWS S3 with public access
 
 ## Getting Started
 
-First, run the development server:
+### Prerequisites
 
+- Node.js 18+ 
+- npm, yarn, pnpm, or bun
+
+### Installation
+
+1. Clone the repository:
+```bash
+git clone <repository-url>
+cd bfs_website
+```
+
+2. Install dependencies:
+```bash
+npm install
+# or
+yarn install
+# or
+pnpm install
+```
+
+3. Run the development server:
 ```bash
 npm run dev
 # or
 yarn dev
 # or
 pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+4. Open [http://localhost:3000](http://localhost:3000) in your browser.
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+## Gallery System
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+The gallery automatically discovers images from your AWS S3 bucket. To add new events:
 
-## Learn More
+1. Create an event folder: `app/data/gallery/[semester]/[event_name]/`
+2. Add `event-info.json` with event metadata
+3. Upload images to the corresponding S3 folder
+4. Images will appear automatically!
 
-To learn more about Next.js, take a look at the following resources:
+See `app/data/gallery/HOW_TO_ADD_IMAGES.md` for detailed instructions.
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+## Project Structure
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+```
+├── app/                    # Next.js App Router
+│   ├── api/               # API routes
+│   ├── data/              # Static data and configurations
+│   ├── gallery/           # Gallery page
+│   └── ...
+├── components/            # Reusable React components
+├── hooks/                 # Custom React hooks
+├── lib/                   # Utility functions
+├── public/                # Static assets
+└── types/                 # TypeScript type definitions
+```
 
-## Deploy on Vercel
+## Design System
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+This project uses a comprehensive design system with:
+- Consistent color palette and typography
+- Reusable component patterns
+- Responsive breakpoints
+- Animation utilities
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+See `components/DESIGN_SYSTEM.md` for full documentation.
+
+## Deployment
+
+The easiest way to deploy is using [Vercel](https://vercel.com/new):
+
+1. Push your code to GitHub
+2. Connect your repository to Vercel
+3. Deploy with zero configuration
+
+## Contributing
+
+1. Fork the repository
+2. Create a feature branch
+3. Make your changes
+4. Submit a pull request
+
+## License
+
+This project is private and proprietary to Baruch Full Stack.

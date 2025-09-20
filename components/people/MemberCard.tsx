@@ -1,5 +1,5 @@
 "use client";
-import React from "react";
+import React, { useState } from "react";
 import { FaLinkedin, FaGraduationCap, FaCalendarAlt } from "react-icons/fa";
 import Image from "next/image";
 import { Card, Typography } from "@/components/ui/DesignSystem";
@@ -12,8 +12,13 @@ interface MemberCardProps {
 }
 
 export default function MemberCard({ member, size = "large", className = "" }: MemberCardProps) {
+  const [imageError, setImageError] = useState(false);
   const imageSize = size === "large" ? "w-32 h-32" : "w-28 h-28";
   const titleSize = size === "large" ? "" : "text-lg";
+
+  const handleImageError = () => {
+    setImageError(true);
+  };
 
   return (
     <Card.Feature className={`text-center p-8 ${className}`}>
@@ -21,19 +26,27 @@ export default function MemberCard({ member, size = "large", className = "" }: M
         {member.name}
       </Typography.CardTitle>
       <div className={`${imageSize} mx-auto mb-4 rounded-full overflow-hidden bg-white/10 border border-white/20 shadow-lg relative`}>
-        <Image
-          src={member.image}
-          alt={member.name}
-          fill
-          className="object-cover object-center"
-          style={{
-            imageRendering: 'auto'
-          }}
-          onError={(e) => {
-            const fallbackSize = size === "large" ? "128x128" : "112x112";
-            e.currentTarget.src = `https://via.placeholder.com/${fallbackSize}/1e3a8a/ffffff?text=${member.name.charAt(0)}`;
-          }}
-        />
+        {imageError ? (
+          <div className="w-full h-full flex items-center justify-center bg-white/5">
+            <div className="text-center text-white/40">
+              <svg className="w-8 h-8 mx-auto mb-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+              </svg>
+              <p className="text-xs">{member.name.charAt(0)}</p>
+            </div>
+          </div>
+        ) : (
+          <Image
+            src={member.image}
+            alt={member.name}
+            fill
+            className="object-cover object-center"
+            style={{
+              imageRendering: 'auto'
+            }}
+            onError={handleImageError}
+          />
+        )}
       </div>
       <Typography.BodyText className="mb-2 text-lg">{member.position}</Typography.BodyText>
       <div className="flex items-center justify-center gap-2 mb-1">

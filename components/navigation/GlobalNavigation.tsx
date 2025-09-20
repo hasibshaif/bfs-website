@@ -125,6 +125,7 @@ export const GlobalNavigation = () => {
                     alt="BFS Logo" 
                     width={28}
                     height={28}
+                    priority
                     className="w-7 h-7 sm:w-8 sm:h-8 hover:scale-110 transition-transform duration-200"
                   />
                 </Link>
@@ -193,6 +194,7 @@ export const GlobalNavigation = () => {
                           alt="BFS Logo" 
                           width={32}
                           height={32}
+                          priority
                           className="w-8 h-8 xs:w-6 xs:h-6 sm:w-8 sm:h-8 md:w-9 md:h-9 lg:w-10 lg:h-10 hover:scale-110 transition-transform duration-200"
                         />
                       </Link>

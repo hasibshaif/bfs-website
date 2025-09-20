@@ -1,7 +1,7 @@
 {
-    "eventName": "Intro to React w/ AIS - Spring 2025",
-    "date": "2025-03-20",
-    "description": "Our first collab event, teaching students React fundamentals.",
-    "googleDriveFolderId": "1Pvsbi8oRkt5_M0HNof5SCp_7rZvYqN0I"
-  }
+  "eventName": "Intro to React w/ AIS - Spring 2025",
+  "date": "2025-03-20",
+  "description": "Our first collab event, teaching students React fundamentals.",
+  "s3Path": "spring_2025/intro_to_react"
+}
   

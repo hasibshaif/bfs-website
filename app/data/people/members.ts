@@ -58,11 +58,11 @@ export const committee: Member[] = [
     links: []
   },
   {
-    name: "Dereck Teverne",
+    name: "Derek Taverne",
     position: "Community Outreach",
     major: "Computer Science",
     year: "Junior",
-    image: "/images/people/dereck-teverne.jpg",
+    image: "/images/people/derek-taverne.jpg",
     linkedin: "https://www.linkedin.com/in/dereck-taverne/",
     links: []
   }

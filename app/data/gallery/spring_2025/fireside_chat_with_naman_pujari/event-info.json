@@ -1,7 +1,7 @@
 {
-    "eventName": "Fireside Chat with Naman Pujari - Spring 2025",
-    "date": "2025-03-27",
-    "description": "Our first speaker event, with Naman Pujari, a software engineer at Bloomberg.",
-    "googleDriveFolderId": "1JjooYTeP_aI7GfTLgFQe3O39bDxmFvjD"
-  }
+  "eventName": "Fireside Chat with Naman Pujari - Spring 2025",
+  "date": "2025-03-27",
+  "description": "Our first speaker event, with Naman Pujari, a software engineer at Bloomberg.",
+  "s3Path": "spring_2025/fireside_chat_with_naman_pujari"
+}
   

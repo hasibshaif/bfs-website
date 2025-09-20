@@ -1,88 +1,91 @@
 import { NextResponse } from 'next/server';
 import { readdir, readFile } from 'fs/promises';
 import { join } from 'path';
+import { EventInfo, EventFolder } from '@/types/gallery';
 
-interface EventInfo {
-  eventName: string;
-  date: string;
-  description: string;
-  googleDriveFolderId?: string; // Optional Google Drive folder ID
+// Extend EventInfo to include s3Path
+interface ExtendedEventInfo extends EventInfo {
+  s3Path: string;
 }
 
-interface GoogleDriveFile {
-  id: string;
-  name: string;
-  mimeType: string;
-  webContentLink?: string;
-}
+const S3_BASE_URL = 'https://bfs-website-gallery-images.s3.us-east-2.amazonaws.com';
 
-interface EventFolder {
-  name: string;
-  path: string;
-  mediaFiles: string[];
-  eventInfo: EventInfo;
-  mediaUrls?: string[]; // URLs for Google Drive media
-  videoThumbnailUrls?: string[]; // Thumbnail URLs for videos
-}
+// Cache for discovered images to avoid repeated API calls
+const imageCache = new Map<string, string[]>();
 
-// Google Drive API helper functions
-async function getGoogleDriveAccessToken() {
-  // You'll need to set up Google Drive API credentials
-  // This is a simplified example - you'll need to implement proper OAuth2 flow
-  const clientId = process.env.GOOGLE_DRIVE_CLIENT_ID;
-  const clientSecret = process.env.GOOGLE_DRIVE_CLIENT_SECRET;
-  const refreshToken = process.env.GOOGLE_DRIVE_REFRESH_TOKEN;
-  
-  if (!clientId || !clientSecret || !refreshToken) {
-    throw new Error('Google Drive credentials not configured');
+// Helper function to automatically discover all images in an S3 folder
+async function discoverS3Images(s3Path: string): Promise<string[]> {
+  try {
+    // Use S3 ListObjectsV2 API to get all objects in the folder
+    const response = await fetch(`https://bfs-website-gallery-images.s3.us-east-2.amazonaws.com/?list-type=2&prefix=${s3Path}/`);
+    
+    if (!response.ok) {
+      console.error(`Failed to fetch S3 objects for ${s3Path}:`, response.status);
+      return [];
+    }
+    
+    const xmlText = await response.text();
+    
+    // Parse XML response to extract object keys
+    const keyRegex = /<Key>(.*?)<\/Key>/g;
+    const keys: string[] = [];
+    let match;
+    
+    while ((match = keyRegex.exec(xmlText)) !== null) {
+      const key = match[1];
+      // Only include media files, not folders, and exclude the folder itself
+      if (key && key.includes('.') && !key.endsWith('/') && key !== s3Path + '/') {
+        // Extract just the filename from the full path
+        let filename = key.split('/').pop();
+        if (filename) {
+          // Decode HTML entities in the filename
+          filename = filename
+            .replace(/&amp;/g, '&')
+            .replace(/&lt;/g, '<')
+            .replace(/&gt;/g, '>')
+            .replace(/&quot;/g, '"')
+            .replace(/&#39;/g, "'");
+          
+          // Filter out HEIC files as Next.js can't handle them
+          const isHeic = /\.(heic|HEIC)$/i.test(filename);
+          if (!isHeic) {
+            keys.push(filename);
+          }
+        }
+      }
+    }
+    
+    return keys;
+  } catch (error) {
+    console.error(`Error discovering images for ${s3Path}:`, error);
+    return [];
   }
-
-  // Exchange refresh token for access token
-  const response = await fetch('https://oauth2.googleapis.com/token', {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/x-www-form-urlencoded',
-    },
-    body: new URLSearchParams({
-      client_id: clientId,
-      client_secret: clientSecret,
-      refresh_token: refreshToken,
-      grant_type: 'refresh_token',
-    }),
-  });
-
-  const data = await response.json();
-  return data.access_token;
 }
 
-async function getGoogleDriveFiles(folderId: string) {
-  const accessToken = await getGoogleDriveAccessToken();
-  
-  const url = `https://www.googleapis.com/drive/v3/files?q='${folderId}'+in+parents&fields=files(id,name,mimeType,webContentLink)&key=${process.env.GOOGLE_DRIVE_API_KEY}`;
-  
-  const response = await fetch(url, {
-    headers: {
-      'Authorization': `Bearer ${accessToken}`,
-    },
-  });
-
-  const data = await response.json();
-  
-  if (!response.ok) {
-    throw new Error(`Google Drive API error: ${response.status}`);
+// Helper function to get images for an event (with caching)
+async function getEventImages(s3Path: string): Promise<string[]> {
+  // Check cache first
+  if (imageCache.has(s3Path)) {
+    return imageCache.get(s3Path)!;
   }
   
-  return data.files || [];
+  // Discover images from S3
+  const images = await discoverS3Images(s3Path);
+  
+  // Cache the result
+  imageCache.set(s3Path, images);
+  
+  return images;
 }
 
 export async function GET() {
   try {
-    const eventsPath = join(process.cwd(), 'app', 'data', 'gallery');
-    const events: EventFolder[] = [];
+    const eventsPath = join(process.cwd(), 'app/data/gallery');
 
     // Recursively find all event-info.json files
     async function findEvents(dirPath: string, currentPath: string = '') {
       const items = await readdir(dirPath, { withFileTypes: true });
+      const events: EventFolder[] = [];
       
       for (const item of items) {
         const fullPath = join(dirPath, item.name);
@@ -96,89 +99,84 @@ export async function GET() {
             
             // This is an event directory
             const eventInfoContent = await readFile(eventInfoPath, 'utf-8');
-            const eventInfo: EventInfo = JSON.parse(eventInfoContent);
+            const eventInfo: ExtendedEventInfo = JSON.parse(eventInfoContent);
 
             let mediaFiles: string[] = [];
             let mediaUrls: string[] = [];
             let videoThumbnailUrls: string[] = [];
 
-            // Check if this event uses Google Drive (only in development)
-            if (eventInfo.googleDriveFolderId && process.env.NODE_ENV === 'development') {
+            // Get images from S3 automatically
+            if (eventInfo.s3Path) {
               try {
-                // Fetch files from Google Drive
-                const driveFiles = await getGoogleDriveFiles(eventInfo.googleDriveFolderId);
+                mediaFiles = await getEventImages(eventInfo.s3Path);
                 
-                // Filter for media files and create direct download URLs
-                const mediaDriveFiles = driveFiles.filter((file: GoogleDriveFile) => 
-                  /\.(jpg|jpeg|png|gif|webp|heic|mp4|mov|avi|mkv|webm)$/i.test(file.name) ||
-                  file.mimeType.startsWith('image/') ||
-                  file.mimeType.startsWith('video/')
-                );
+              // Generate S3 URLs for each media file
+              mediaUrls = mediaFiles.map(fileName => {
+                const isVideo = /\.(mp4|mov|avi|mkv|webm)$/i.test(fileName);
+                // Properly encode the filename for URL
+                const encodedFileName = encodeURIComponent(fileName);
+                if (isVideo) {
+                  // For videos, we'll use the same URL but mark it as video
+                  return `${S3_BASE_URL}/${eventInfo.s3Path}/${encodedFileName}`;
+                } else {
+                  // For images, use direct S3 URL
+                  return `${S3_BASE_URL}/${eventInfo.s3Path}/${encodedFileName}`;
+                }
+              });
 
-                mediaFiles = mediaDriveFiles.map((file: GoogleDriveFile) => file.name);
-                mediaUrls = mediaDriveFiles.map((file: GoogleDriveFile) => {
-                  let url: string;
-                  
-                  // For HEIC files, use thumbnail service
-                  if (file.mimeType === 'image/heif' || /\.heic$/i.test(file.name)) {
-                    url = `https://drive.google.com/thumbnail?id=${file.id}&sz=w1000`;
-                  }
-                  // For videos, use webContentLink or direct access
-                  else if (file.mimeType.startsWith('video/') || /\.(mp4|mov|avi|mkv|webm)$/i.test(file.name)) {
-                    url = file.webContentLink || `https://drive.google.com/file/d/${file.id}/view`;
-                  }
-                  // For other images, use the thumbnail service for better compatibility
-                  else {
-                    url = `https://drive.google.com/thumbnail?id=${file.id}&sz=w1000`;
-                  }
-                  
-                  return url;
-                });
-
-                // Generate thumbnail URLs for videos
-                videoThumbnailUrls = mediaDriveFiles.map((file: GoogleDriveFile) => {
-                  if (file.mimeType.startsWith('video/') || /\.(mp4|mov|avi|mkv|webm)$/i.test(file.name)) {
-                    return `https://drive.google.com/thumbnail?id=${file.id}&sz=w1000`;
-                  }
-                  return null;
-                }).filter((url: string | null): url is string => url !== null);
+              // Generate thumbnail URLs for videos (using first frame or placeholder)
+              videoThumbnailUrls = mediaFiles.map(fileName => {
+                const isVideo = /\.(mp4|mov|avi|mkv|webm)$/i.test(fileName);
+                if (isVideo) {
+                  // For videos, you might want to generate thumbnails or use a placeholder
+                  // For now, we'll use the same URL but this should be replaced with actual thumbnails
+                  const encodedFileName = encodeURIComponent(fileName);
+                  return `${S3_BASE_URL}/${eventInfo.s3Path}/${encodedFileName}`;
+                }
+                return '';
+              }).filter(url => url !== '');
               } catch (error) {
-                console.error(`Google Drive API error for event ${eventInfo.eventName}:`, error);
-                // Fall back to local files if Google Drive fails
-                // Continue with empty arrays for mediaUrls and videoThumbnailUrls
+                console.error(`Error fetching images for ${eventInfo.s3Path}:`, error);
+                mediaFiles = [];
+                mediaUrls = [];
+                videoThumbnailUrls = [];
               }
             }
 
             events.push({
-              name: relativePath,
-              path: `/gallery/${relativePath}`,
-              mediaFiles,
+              name: eventInfo.eventName,
               eventInfo,
-              mediaUrls: mediaUrls.length > 0 ? mediaUrls : undefined,
-              videoThumbnailUrls: videoThumbnailUrls.length > 0 ? videoThumbnailUrls : undefined
+              mediaFiles,
+              mediaUrls,
+              videoThumbnailUrls,
+              path: relativePath
             });
           } catch {
-            // This directory doesn't have an event-info.json, continue searching
-            await findEvents(fullPath, relativePath);
+            // Not an event directory, continue searching
+            const subEvents = await findEvents(fullPath, relativePath);
+            events.push(...subEvents);
           }
         }
       }
+      
+      return events;
     }
 
-    // Start the recursive search
-    await findEvents(eventsPath);
+    const events = await findEvents(eventsPath);
+    
+    // Sort events by date in reverse chronological order (most recent first)
+    events.sort((a, b) => {
+      const dateA = new Date(a.eventInfo.date);
+      const dateB = new Date(b.eventInfo.date);
+      return dateB.getTime() - dateA.getTime();
+    });
 
-    // Sort events by date (most recent first)
-    const sortedEvents = events.sort((a, b) => 
-      new Date(b.eventInfo.date).getTime() - new Date(a.eventInfo.date).getTime()
-    );
-
-    return NextResponse.json(sortedEvents);
+    return NextResponse.json(events);
   } catch (error) {
-    console.error('Gallery API error:', error);
-    return NextResponse.json({ 
-      error: 'Failed to load gallery',
-      details: process.env.NODE_ENV === 'development' ? (error as Error).message : undefined
-    }, { status: 500 });
+    console.error('Error fetching gallery data:', error);
+    return NextResponse.json(
+      { error: 'Failed to fetch gallery data' },
+      { status: 500 }
+    );
   }
 }

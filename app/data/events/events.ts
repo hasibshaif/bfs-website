@@ -10,6 +10,14 @@ export interface Event {
 
 export const events: Event[] = [
   {
+    id: "fall-club-fair",
+    title: "Fall 2025 Club Fair",
+    date: "2025-09-18",
+    description: "Our first club fair as an official club! Students got to stop by our table, learn about our goals, meet the team, and grab free candy!",
+    semester: "fall_2025",
+    eventFolder: "club_fair"
+  },
+  {
     id: "chartered",
     title: "Baruch Full Stack gets officially chartered!",
     date: "2025-04-01",
