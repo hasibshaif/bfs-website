@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { ubuntu, azeretMono } from "./fonts";
 import "./globals.css";
 import { GlobalNavigation } from "@/components/navigation/GlobalNavigation";
+import { GoogleAnalytics } from "@next/third-parties/google";
 
 export const metadata: Metadata = {
   title: "Baruch Full Stack",
@@ -15,6 +16,9 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
+      {process.env.NEXT_PUBLIC_GA_ID && (
+        <GoogleAnalytics gaId={process.env.NEXT_PUBLIC_GA_ID} />
+      )}    
       <body
         className={`${ubuntu.variable} ${azeretMono.variable} antialiased`}
       >
