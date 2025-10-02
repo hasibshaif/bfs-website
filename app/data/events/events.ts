@@ -10,6 +10,14 @@ export interface Event {
 
 export const events: Event[] = [
   {
+    id: "gim_fall_2025",
+    title: "General Interest Meeting - Fall 2025",
+    date: "2025-09-25",
+    description: "Our first event of the semester, our General Interest Meeting!",
+    semester: "fall_2025",
+    eventFolder: "gim"
+  },
+  {
     id: "fall-club-fair",
     title: "Fall 2025 Club Fair",
     date: "2025-09-18",
@@ -42,8 +50,8 @@ export const events: Event[] = [
     eventFolder: "intro_to_react"
   },
   {
-    id: "gim_1",
-    title: "General Interest Meeting #1",
+    id: "gim_spring_2025",
+    title: "General Interest Meeting - Spring 2025",
     date: "2025-02-20",
     description: "Attendees got to discover our club, learn about our goals and mission (including plans for semester-long projects), connect with fellow tech enthusiasts, meet the e-board, and enjoy pizza!",
     semester: "spring_2025",
