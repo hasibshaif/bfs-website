@@ -53,7 +53,7 @@ export const committee: Member[] = [
     position: "Marketer",
     major: "Computer Information Systems",
     year: "Junior",
-    image: "/images/people/nishat-angum.jpg",
+    image: "/images/people/nishat-angum.jpeg",
     linkedin: "https://www.linkedin.com/in/nishat-angum-406288275",
     links: []
   },
